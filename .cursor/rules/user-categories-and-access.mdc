@@ -1,0 +1,37 @@
+---
+description: User categories and access control - Users table and permission logic
+alwaysApply: true
+---
+
+# Project Core: User Categories & Access Control
+
+All work involving the **users** table or **access control** must follow these rules.
+
+## 1. User Categories (`users.category`)
+
+The `users` table has an enum column **`category`**. It is the primary way we distinguish actors. Categories are fixed:
+
+| Category           | Role in system |
+|--------------------|----------------|
+| **admin**          | System Super-Admin. Absolute access. **Bypasses all permission checks.** |
+| **technical**      | Technical staff. **Only** category that uses the dynamic Roles & Permissions system (Laratrust). |
+| **client**         | Fleet owner: manages drivers, vehicles, and balance. |
+| **station_manager**| Manages a specific fuel station and its workers. |
+| **worker**         | Fuel station employee; initiates fueling via QR codes. |
+| **driver**         | End-user who consumes the balance. |
+
+- Do not introduce new categories without explicit product decision.
+- Validation, middleware, and policies must use this exact set.
+
+## 2. Access Control Logic
+
+- **admin**: Full access everywhere. No permission checks. Middleware should allow admin through before any Laratrust or route-based permission logic.
+- **technical**: Access is determined **only** by assigned Roles & Permissions (Laratrust). No special bypass.
+- **client**, **station_manager**, **worker**, **driver**: Access is defined by business logic (e.g. scoped to their fleet, station, or account). Do not grant them access via the generic admin permission system; use category-specific rules and scopes.
+
+## 3. Implementation Notes
+
+- When adding or changing middleware: allow `category === 'admin'` first; then apply permission checks only for `technical`.
+- When adding admin panel routes: restrict to `admin` and `technical` (and for technical, enforce Laratrust permissions).
+- When adding API or app features: scope by category (e.g. client sees only their fleet; driver only their balance; worker only their station).
+- Seeders, factories, and tests should use these category values; avoid arbitrary or legacy categories (e.g. `teacher`, `employee`) unless migrating from old data.

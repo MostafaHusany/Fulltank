@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'Title Administration' => 'News Administration',
+    'title' => 'Title',
+    'thumbnail' => 'Thumbnail',
+    'content' => 'Content',
+    'created_at' => 'Created Date',
+    'Create Title' => 'Add News',
+    'Update Title' => 'Update News',
+    'Show Title' => 'Show News',
+    'title_placeholder' => 'News title',
+    'title_required' => 'Title is required',
+    'content_required' => 'Content is required',
+    'thumbnail_required' => 'Thumbnail is required',
+    'thumbnail_optional_hint' => 'Leave empty to keep current thumbnail',
+    'object_created' => 'News created successfully',
+    'object_updated' => 'News updated successfully',
+    'object_deleted' => 'News deleted successfully',
+    'object_not_found' => 'News not found',
+    'object_error' => 'An error occurred. Please try again.',
+    'related_services' => 'Related Services',
+    'tags' => 'Tags',
+    'Select_Services' => 'Select services',
+    'Select_or_create_tags' => 'Select or create tags',
+];
