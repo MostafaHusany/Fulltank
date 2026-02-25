@@ -27,4 +27,10 @@ return [
     'object_deleted'   => 'Client was deleted',
     'object_not_found' => 'Client not found',
     'object_error'     => 'An error occurred. Please try again.',
+    'document_uploaded'   => 'Document uploaded successfully',
+    'document_upload_error' => 'Failed to upload document',
+    'document_deleted'   => 'Document deleted',
+    'document_delete_error' => 'Failed to delete document',
+    'Documents'          => 'Documents',
+    'Add New File'       => 'Add New File',
 ];

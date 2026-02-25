@@ -82,6 +82,23 @@ Route::group([
         ]
     ]);
 
+    Route::resource('vehicles', App\Http\Controllers\Admin\VehicleController::class, [
+        'names' => [
+            'index'   => 'admin.vehicles.index',
+            'store'   => 'admin.vehicles.store',
+            'show'    => 'admin.vehicles.show',
+            'edit'    => 'admin.vehicles.edit',
+            'update'  => 'admin.vehicles.update',
+            'destroy' => 'admin.vehicles.destroy'
+        ]
+    ]);
+
+    Route::get('clients/{clientId}/documents', [App\Http\Controllers\Admin\ClientController::class, 'indexDocuments'])->name('admin.clients.documents.index');
+    Route::post('clients/{clientId}/documents', [App\Http\Controllers\Admin\ClientController::class, 'storeDocument'])->name('admin.clients.documents.store');
+    Route::get('client-documents/{documentId}/view', [App\Http\Controllers\Admin\ClientController::class, 'viewDocument'])->name('admin.clients.documents.view');
+    Route::get('client-documents/{documentId}/download', [App\Http\Controllers\Admin\ClientController::class, 'downloadDocument'])->name('admin.clients.documents.download');
+    Route::delete('client-documents/{documentId}', [App\Http\Controllers\Admin\ClientController::class, 'destroyDocument'])->name('admin.clients.documents.destroy');
+
     // START SETTINGS ROUTES
     Route::resource('users-files', UserFileContoller::class, [
         'names' => [

@@ -253,35 +253,7 @@
         }
 
         const init = (() => {
-            
-            // $('#dreafted_data').select2({
-            //     allowClear: true,
-            //     width: '100%',
-            //     placeholder: `@lang('layouts.Select_Draft')`,
-            //     ajax: {
-            //         url: '{{ route("admin.search.drafts") }}',
-            //         dataType: 'json',
-            //         delay: 150,
-            //         data : function (params) {
-            //             var query = {
-            //                 q  : params.term,
-            //                 section_flag : 'admin.districts'
-            //             }
-            //             return query;
-            //         },
-            //         processResults : function(data) {
-            //             return {
-            //                 results: $.map(data, function(item) {
-            //                     return {
-            //                         text    : item.title,
-            //                         id      : item.id
-            //                     }
-            //                 })
-            //             };
-            //         },
-            //         cache: true
-            //     }
-            // });
+          
 
         })();
         

@@ -13,7 +13,9 @@ use Illuminate\Support\Facades\Validator;
 
 use App\Models\User;
 use App\Models\ClientCategory;
+use App\Models\ClientDocument;
 use App\Services\UserService;
+use App\Services\ClientDocumentService;
 
 use App\Http\Traits\ResponseTemplate;
 
@@ -23,11 +25,13 @@ class ClientController extends Controller
 
     private $targetModel;
     private $userService;
+    private $documentService;
 
-    public function __construct(UserService $userService)
+    public function __construct(UserService $userService, ClientDocumentService $documentService)
     {
         $this->targetModel = new User;
         $this->userService = $userService;
+        $this->documentService = $documentService;
     }
 
     public function index(Request $request)
@@ -40,6 +44,7 @@ class ClientController extends Controller
             $model = $this->targetModel->query()
                 ->where('category', 'client')
                 ->with('clientCategory')
+                ->withCount('clientDocuments')
                 ->orderBy('id', 'desc')
                 ->adminFilter();
 
@@ -49,6 +54,9 @@ class ClientController extends Controller
                 })
                 ->addColumn('client_category_name', function ($row_object) {
                     return $row_object->clientCategory ? e($row_object->clientCategory->name) : '---';
+                })
+                ->addColumn('documents_btn', function ($row_object) use ($permissions) {
+                    return view('admin.clients.incs._documents_btn', compact('row_object', 'permissions'));
                 })
                 ->addColumn('activation', function ($row_object) use ($permissions) {
                     return view('admin.clients.incs._active', compact('row_object', 'permissions'));
@@ -169,6 +177,114 @@ class ClientController extends Controller
             $query->where('name', 'like', "%{$search}%");
         }
         return response()->json($query->get(['id', 'name']));
+    }
+
+    /**
+     * List client documents (AJAX). Admin/technical only via middleware.
+     */
+    public function indexDocuments($clientId)
+    {
+        $this->ensureAuthorized();
+        $client = $this->targetModel->query()->where('category', 'client')->find($clientId);
+        if (!$client) {
+            return $this->responseTemplate(null, false, __('clients.object_not_found'));
+        }
+        $documents = $client->clientDocuments()->orderBy('id', 'desc')->get();
+        return $this->responseTemplate($documents, true, null);
+    }
+
+    /**
+     * Store client document. Admin/technical only.
+     */
+    public function storeDocument(Request $request, $clientId)
+    {
+        $this->ensureAuthorized();
+        $client = $this->targetModel->query()->where('category', 'client')->find($clientId);
+        if (!$client) {
+            return $this->responseTemplate(null, false, __('clients.object_not_found'));
+        }
+        $validator = Validator::make($request->all(), [
+            'title' => 'nullable|string|max:255',
+            'file'  => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ]);
+        if ($validator->fails()) {
+            return $this->responseTemplate(null, false, $validator->errors());
+        }
+        try {
+            DB::beginTransaction();
+            $doc = $this->documentService->store($client, $request);
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('ClientController@storeDocument Exception', ['error' => $e->getMessage()]);
+            return $this->responseTemplate(null, false, [__('clients.document_upload_error')]);
+        }
+        if (!$doc) {
+            return $this->responseTemplate(null, false, [__('clients.document_upload_error')]);
+        }
+        return $this->responseTemplate($doc, true, __('clients.document_uploaded'));
+    }
+
+    /**
+     * View file inline (new tab). Protected route.
+     */
+    public function viewDocument($documentId)
+    {
+        $this->ensureAuthorized();
+        $doc = ClientDocument::with('client')->find($documentId);
+        if (!$doc || $doc->client->category !== 'client') {
+            abort(404, 'Document not found.');
+        }
+        $path = $this->documentService->fullPath($doc);
+        if (!file_exists($path)) {
+            abort(404, 'File not found.');
+        }
+        return response()->file($path);
+    }
+
+    /**
+     * Download file. Protected route.
+     */
+    public function downloadDocument($documentId)
+    {
+        $this->ensureAuthorized();
+        $doc = ClientDocument::with('client')->find($documentId);
+        if (!$doc || $doc->client->category !== 'client') {
+            abort(404, 'Document not found.');
+        }
+        $path = $this->documentService->fullPath($doc);
+        if (!file_exists($path)) {
+            abort(404, 'File not found.');
+        }
+        $filename = $doc->title . '.' . $doc->extension;
+        return response()->download($path, $filename);
+    }
+
+    /**
+     * Delete document.
+     */
+    public function destroyDocument($documentId)
+    {
+        $this->ensureAuthorized();
+        $doc = ClientDocument::with('client')->find($documentId);
+        if (!$doc || $doc->client->category !== 'client') {
+            return $this->responseTemplate(null, false, __('clients.object_not_found'));
+        }
+        try {
+            $this->documentService->delete($doc);
+        } catch (Exception $e) {
+            Log::error('ClientController@destroyDocument Exception', ['error' => $e->getMessage()]);
+            return $this->responseTemplate(null, false, [__('clients.document_delete_error')]);
+        }
+        return $this->responseTemplate(null, true, __('clients.document_deleted'));
+    }
+
+    private function ensureAuthorized(): void
+    {
+        $user = auth()->user();
+        if (!$user || !in_array($user->category, ['admin', 'technical'])) {
+            abort(403, 'Unauthorized.');
+        }
     }
 
     /**

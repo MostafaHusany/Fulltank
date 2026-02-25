@@ -70,6 +70,16 @@ class User extends Authenticatable implements LaratrustUser
         return $this->belongsTo(ClientCategory::class, 'client_category_id');
     }
 
+    public function clientDocuments()
+    {
+        return $this->hasMany(ClientDocument::class, 'client_id');
+    }
+
+    public function vehicles()
+    {
+        return $this->hasMany(Vehicle::class, 'client_id');
+    }
+
     public function employee () {
         return $this->hasOne(Employee::class, 'user_id');
     }

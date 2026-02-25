@@ -42,7 +42,7 @@ class AdminPermissionsMiddleware
         }
         
         $permissions = [
-            'users', 'roles', 'clients', 'cars',
+            'users', 'roles', 'clients', 'vehicles', 'cars',
             'managers' , 'workshops', 'workshopsOrders', 'districts',
             'services', 'wallets', 'walletsCharges', 'transactions', 'carBrands', 
         ];

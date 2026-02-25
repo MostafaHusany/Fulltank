@@ -9,6 +9,7 @@
             || auth()->user()->isAbleTo('users_*')
             || auth()->user()->isAbleTo('roles_*')
             || auth()->user()->isAbleTo('clients_*')
+            || auth()->user()->isAbleTo('vehicles_*')
         )
         <ul class="nav flex-column">
             @if( $user_category == 'admin' || auth()->user()->isAbleTo('dashboard_*') )
@@ -43,6 +44,15 @@
                 <a class="nav-link {{ str_contains(Request::path(), '/clients') ? 'active' : ''}}" href="{{ route('admin.clients.index') }}">
                     <i class="fas mx-1 fa-users"></i>
                     <span class="mx-1">@lang('clients.Title Administration')</span>
+                </a>
+            </li>
+            @endif
+
+            @if( $user_category == 'admin' || auth()->user()->isAbleTo('vehicles_*') )
+            <li class="nav-item">
+                <a class="nav-link {{ str_contains(Request::path(), '/vehicles') ? 'active' : ''}}" href="{{ route('admin.vehicles.index') }}">
+                    <i class="fas mx-1 fa-car"></i>
+                    <span class="mx-1">@lang('vehicles.Title Administration')</span>
                 </a>
             </li>
             @endif

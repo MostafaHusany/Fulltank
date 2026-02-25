@@ -27,4 +27,10 @@ return [
     'object_deleted'   => 'تم حذف العميل',
     'object_not_found' => 'العميل غير موجود',
     'object_error'     => 'حدث خطأ. يرجى المحاولة مرة أخرى.',
+    'document_uploaded'   => 'تم رفع الملف بنجاح',
+    'document_upload_error' => 'فشل رفع الملف',
+    'document_deleted'   => 'تم حذف الملف',
+    'document_delete_error' => 'فشل حذف الملف',
+    'Documents'          => 'الملفات',
+    'Add New File'       => 'إضافة ملف جديد',
 ];
