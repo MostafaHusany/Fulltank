@@ -74,6 +74,15 @@
             </li>
             @endif
 
+            @if( $user_category == 'admin' || auth()->user()->isAbleTo('stations_*') )
+            <li class="nav-item">
+                <a class="nav-link {{ str_contains(Request::path(), '/stations') ? 'active' : ''}}" href="{{ route('admin.stations.index') }}">
+                    <i class="fas mx-1 fa-gas-pump"></i>
+                    <span class="mx-1">@lang('stations.Title')</span>
+                </a>
+            </li>
+            @endif
+
             @if( $user_category == 'admin' || auth()->user()->isAbleTo('wallets_*') )
             <li class="nav-item">
                 <a class="nav-link {{ str_contains(Request::path(), '/wallets') ? 'active' : ''}}" href="{{ route('admin.wallets.index') }}">
@@ -105,25 +114,25 @@
         @endif
 
 
-        @if( $user_category == 'admin' || auth()->user()->isAbleTo('districts_*') )
+        @if( $user_category == 'admin' || auth()->user()->isAbleTo('districts_*') || auth()->user()->isAbleTo('governorates_*') || auth()->user()->isAbleTo('fuelTypes_*') )
         <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
             <span>@lang('layouts.Settings')</span>
         </h6>
 
         <ul class="nav flex-column mb-2">
-            @if( $user_category == 'admin' || auth()->user()->isAbleTo('districts_*') )
-            <li class="nav-item">
-                <a class="nav-link {{ str_contains(Request::path(), '/districts') ? 'active' : ''}}" href="{{ route('admin.districts.index') }}">
-                    <i class="fas mx-1 fa-map-marker-alt"></i>
-                    <span class="mx-1">@lang('layouts.Districts')</span>
-                </a>
-            </li>
-            @endif
             @if( $user_category == 'admin' || auth()->user()->isAbleTo('governorates_*') )
             <li class="nav-item">
                 <a class="nav-link {{ str_contains(Request::path(), '/governorates') ? 'active' : ''}}" href="{{ route('admin.governorates.index') }}">
                     <i class="fas mx-1 fa-map"></i>
                     <span class="mx-1">@lang('governorates.Title')</span>
+                </a>
+            </li>
+            @endif
+            @if( $user_category == 'admin' || auth()->user()->isAbleTo('fuelTypes_*') )
+            <li class="nav-item">
+                <a class="nav-link {{ str_contains(Request::path(), '/fuel-types') ? 'active' : ''}}" href="{{ route('admin.fuelTypes.index') }}">
+                    <i class="fas mx-1 fa-gas-pump"></i>
+                    <span class="mx-1">@lang('fuel_types.Title')</span>
                 </a>
             </li>
             @endif

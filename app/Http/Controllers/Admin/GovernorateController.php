@@ -180,4 +180,17 @@ class GovernorateController extends Controller
         $items = $query->get(['id', 'name']);
         return response()->json($items->map(fn($g) => ['id' => $g->id, 'text' => $g->name]));
     }
+
+    public function districtsAjax(Request $request)
+    {
+        $query = GovernorateDistrict::query()->orderBy('name');
+        if ($request->filled('governorate_id')) {
+            $query->where('governorate_id', $request->governorate_id);
+        }
+        if ($request->filled('q')) {
+            $query->where('name', 'like', '%' . $request->q . '%');
+        }
+        $items = $query->get(['id', 'name']);
+        return response()->json($items->map(fn($d) => ['id' => $d->id, 'text' => $d->name]));
+    }
 }

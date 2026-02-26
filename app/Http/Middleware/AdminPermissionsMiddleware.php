@@ -44,7 +44,7 @@ class AdminPermissionsMiddleware
         $permissions = [
             'users', 'roles', 'clients', 'vehicles', 'drivers', 'cars',
             'depositRequests', 'paymentMethods', 'financialSettings',
-            'managers' , 'workshops', 'workshopsOrders', 'districts', 'governorates', 'vehicleQuotas',
+            'managers' , 'workshops', 'workshopsOrders', 'districts', 'governorates', 'vehicleQuotas', 'fuelTypes', 'stations',
             'services', 'wallets', 'walletsCharges', 'transactions', 'carBrands', 
         ];
 

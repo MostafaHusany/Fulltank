@@ -60,17 +60,6 @@ Route::group([
         ]
     ]);
 
-    Route::resource('districts', DistrictController::class, [
-        'names' => [
-            'index'   => 'admin.districts.index',
-            'store'   => 'admin.districts.store',
-            'show'    => 'admin.districts.show',
-            'edit'    => 'admin.districts.edit',
-            'update'  => 'admin.districts.update',
-            'destroy' => 'admin.districts.destroy'
-        ]
-    ]);
-
     Route::resource('clients', ClientController::class, [
         'names' => [
             'index'   => 'admin.clients.index',
@@ -143,7 +132,6 @@ Route::group([
     Route::get('/roles-search',                         [App\Http\Controllers\Admin\RoleController::class,                   'roleAjax'])->name('admin.search.roles');
     Route::get('/permissions-search',                   [App\Http\Controllers\Admin\RoleController::class,                   'permissionAjax'])->name('admin.search.permissions');
     Route::get('/draft-search',                         [App\Http\Controllers\Admin\Settings\DraftController::class,         'dataAjax'])->name('admin.search.drafts');
-    Route::get('/districts-search',                     [App\Http\Controllers\Admin\DistrictController::class,               'dataAjax'])->name('admin.search.districts');
     Route::get('/clients-search',                       [App\Http\Controllers\Admin\ClientController::class,                  'dataAjax'])->name('admin.search.clients');
     Route::get('/client-categories-search',             [App\Http\Controllers\Admin\ClientController::class,                  'categoriesAjax'])->name('admin.search.clientCategories');
     Route::get('/vehicles-by-client',                    [App\Http\Controllers\Admin\DriverController::class,                 'vehiclesByClient'])->name('admin.search.vehiclesByClient');
@@ -162,6 +150,14 @@ Route::group([
     Route::put('governorates/districts/{id}', [App\Http\Controllers\Admin\GovernorateController::class, 'updateDistrict'])->name('admin.governorates.districts.update');
     Route::delete('governorates/districts/{id}', [App\Http\Controllers\Admin\GovernorateController::class, 'destroyDistrict'])->name('admin.governorates.districts.destroy');
     Route::get('governorates-search', [App\Http\Controllers\Admin\GovernorateController::class, 'dataAjax'])->name('admin.search.governorates');
+    Route::get('districts-search', [App\Http\Controllers\Admin\GovernorateController::class, 'districtsAjax'])->name('admin.search.districts');
+
+    Route::get('stations', [App\Http\Controllers\Admin\StationController::class, 'index'])->name('admin.stations.index');
+    Route::post('stations', [App\Http\Controllers\Admin\StationController::class, 'store'])->name('admin.stations.store');
+    Route::get('stations/{id}', [App\Http\Controllers\Admin\StationController::class, 'show'])->name('admin.stations.show');
+    Route::put('stations/{id}', [App\Http\Controllers\Admin\StationController::class, 'update'])->name('admin.stations.update');
+    Route::delete('stations/{id}', [App\Http\Controllers\Admin\StationController::class, 'destroy'])->name('admin.stations.destroy');
+    Route::put('stations/{id}/toggle-account', [App\Http\Controllers\Admin\StationController::class, 'toggleAccountStatus'])->name('admin.stations.toggleAccount');
 
     Route::get('vehicle-quotas', [App\Http\Controllers\Admin\VehicleQuotaController::class, 'index'])->name('admin.vehicleQuotas.index');
     Route::get('vehicle-quotas/vehicles', [App\Http\Controllers\Admin\VehicleQuotaController::class, 'vehicles'])->name('admin.vehicleQuotas.vehicles');
@@ -190,6 +186,14 @@ Route::group([
     Route::get('payment-methods-list', [App\Http\Controllers\Admin\PaymentMethodController::class, 'listActive'])->name('admin.paymentMethods.list');
     Route::get('financial-settings/fee', [App\Http\Controllers\Admin\FinancialSettingController::class, 'index'])->name('admin.financialSettings.fee');
     Route::put('financial-settings/fee', [App\Http\Controllers\Admin\FinancialSettingController::class, 'update'])->name('admin.financialSettings.updateFee');
+
+    Route::get('fuel-types', [App\Http\Controllers\Admin\FuelTypeController::class, 'index'])->name('admin.fuelTypes.index');
+    Route::post('fuel-types', [App\Http\Controllers\Admin\FuelTypeController::class, 'store'])->name('admin.fuelTypes.store');
+    Route::get('fuel-types/{id}', [App\Http\Controllers\Admin\FuelTypeController::class, 'show'])->name('admin.fuelTypes.show');
+    Route::put('fuel-types/{id}', [App\Http\Controllers\Admin\FuelTypeController::class, 'update'])->name('admin.fuelTypes.update');
+    Route::delete('fuel-types/{id}', [App\Http\Controllers\Admin\FuelTypeController::class, 'destroy'])->name('admin.fuelTypes.destroy');
+    Route::put('fuel-types/{id}/toggle-status', [App\Http\Controllers\Admin\FuelTypeController::class, 'toggleStatus'])->name('admin.fuelTypes.toggleStatus');
+    Route::get('fuel-types-list', [App\Http\Controllers\Admin\FuelTypeController::class, 'listActive'])->name('admin.fuelTypes.list');
 
 });
 
