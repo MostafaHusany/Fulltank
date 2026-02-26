@@ -82,7 +82,7 @@ Route::group([
         ]
     ]);
 
-    Route::resource('vehicles', App\Http\Controllers\Admin\VehicleController::class, [
+    Route::resource('vehicles', VehicleController::class, [
         'names' => [
             'index'   => 'admin.vehicles.index',
             'store'   => 'admin.vehicles.store',
@@ -90,6 +90,17 @@ Route::group([
             'edit'    => 'admin.vehicles.edit',
             'update'  => 'admin.vehicles.update',
             'destroy' => 'admin.vehicles.destroy'
+        ]
+    ]);
+
+    Route::resource('drivers', DriverController::class, [
+        'names' => [
+            'index'   => 'admin.drivers.index',
+            'store'   => 'admin.drivers.store',
+            'show'    => 'admin.drivers.show',
+            'edit'    => 'admin.drivers.edit',
+            'update'  => 'admin.drivers.update',
+            'destroy' => 'admin.drivers.destroy'
         ]
     ]);
 
@@ -135,6 +146,50 @@ Route::group([
     Route::get('/districts-search',                     [App\Http\Controllers\Admin\DistrictController::class,               'dataAjax'])->name('admin.search.districts');
     Route::get('/clients-search',                       [App\Http\Controllers\Admin\ClientController::class,                  'dataAjax'])->name('admin.search.clients');
     Route::get('/client-categories-search',             [App\Http\Controllers\Admin\ClientController::class,                  'categoriesAjax'])->name('admin.search.clientCategories');
+    Route::get('/vehicles-by-client',                    [App\Http\Controllers\Admin\DriverController::class,                 'vehiclesByClient'])->name('admin.search.vehiclesByClient');
+
+    Route::resource('governorates', App\Http\Controllers\Admin\GovernorateController::class, [
+        'names' => [
+            'index'   => 'admin.governorates.index',
+            'store'   => 'admin.governorates.store',
+            'show'    => 'admin.governorates.show',
+            'edit'    => 'admin.governorates.edit',
+            'update'  => 'admin.governorates.update',
+            'destroy' => 'admin.governorates.destroy'
+        ]
+    ]);
+    Route::post('governorates/districts', [App\Http\Controllers\Admin\GovernorateController::class, 'storeDistrict'])->name('admin.governorates.districts.store');
+    Route::put('governorates/districts/{id}', [App\Http\Controllers\Admin\GovernorateController::class, 'updateDistrict'])->name('admin.governorates.districts.update');
+    Route::delete('governorates/districts/{id}', [App\Http\Controllers\Admin\GovernorateController::class, 'destroyDistrict'])->name('admin.governorates.districts.destroy');
+    Route::get('governorates-search', [App\Http\Controllers\Admin\GovernorateController::class, 'dataAjax'])->name('admin.search.governorates');
+
+    Route::get('vehicle-quotas', [App\Http\Controllers\Admin\VehicleQuotaController::class, 'index'])->name('admin.vehicleQuotas.index');
+    Route::get('vehicle-quotas/vehicles', [App\Http\Controllers\Admin\VehicleQuotaController::class, 'vehicles'])->name('admin.vehicleQuotas.vehicles');
+    Route::put('vehicle-quotas/{id}', [App\Http\Controllers\Admin\VehicleQuotaController::class, 'update'])->name('admin.vehicleQuotas.update');
+    Route::post('vehicle-quotas/bulk', [App\Http\Controllers\Admin\VehicleQuotaController::class, 'bulkAllocate'])->name('admin.vehicleQuotas.bulk');
+
+    Route::get('wallets', [App\Http\Controllers\Admin\WalletController::class, 'index'])->name('admin.wallets.index');
+    Route::post('wallets/deposit', [App\Http\Controllers\Admin\WalletController::class, 'deposit'])->name('admin.wallets.deposit');
+    Route::put('wallets/{walletId}/toggle-status', [App\Http\Controllers\Admin\WalletController::class, 'toggleStatus'])->name('admin.wallets.toggleStatus');
+    Route::get('wallets/{walletId}/transactions', [App\Http\Controllers\Admin\WalletController::class, 'transactions'])->name('admin.wallets.transactions');
+
+    Route::get('deposit-requests', [App\Http\Controllers\Admin\DepositRequestController::class, 'index'])->name('admin.depositRequests.index');
+    Route::get('deposit-requests/{id}/proof-image', [App\Http\Controllers\Admin\DepositRequestController::class, 'viewProofImage'])->name('admin.depositRequests.viewProofImage');
+    Route::post('deposit-requests', [App\Http\Controllers\Admin\DepositRequestController::class, 'store'])->name('admin.depositRequests.store');
+    Route::put('deposit-requests/{id}', [App\Http\Controllers\Admin\DepositRequestController::class, 'update'])->name('admin.depositRequests.update');
+    Route::post('deposit-requests/{id}/generate-balance', [App\Http\Controllers\Admin\DepositRequestController::class, 'generateBalance'])->name('admin.depositRequests.generateBalance');
+    Route::get('deposit-requests/calculate-fee', [App\Http\Controllers\Admin\DepositRequestController::class, 'calculateFee'])->name('admin.depositRequests.calculateFee');
+    Route::get('deposit-requests/analytics', [App\Http\Controllers\Admin\DepositRequestController::class, 'analytics'])->name('admin.depositRequests.analytics');
+    Route::get('deposit-requests/{id}/generated-record', [App\Http\Controllers\Admin\DepositRequestController::class, 'generatedRecord'])->name('admin.depositRequests.generatedRecord');
+
+    Route::get('financial-settings', [App\Http\Controllers\Admin\FinancialSettingsController::class, 'index'])->name('admin.financialSettings.index');
+    Route::get('payment-methods', [App\Http\Controllers\Admin\PaymentMethodController::class, 'index'])->name('admin.paymentMethods.index');
+    Route::post('payment-methods', [App\Http\Controllers\Admin\PaymentMethodController::class, 'store'])->name('admin.paymentMethods.store');
+    Route::put('payment-methods/{id}', [App\Http\Controllers\Admin\PaymentMethodController::class, 'update'])->name('admin.paymentMethods.update');
+    Route::delete('payment-methods/{id}', [App\Http\Controllers\Admin\PaymentMethodController::class, 'destroy'])->name('admin.paymentMethods.destroy');
+    Route::get('payment-methods-list', [App\Http\Controllers\Admin\PaymentMethodController::class, 'listActive'])->name('admin.paymentMethods.list');
+    Route::get('financial-settings/fee', [App\Http\Controllers\Admin\FinancialSettingController::class, 'index'])->name('admin.financialSettings.fee');
+    Route::put('financial-settings/fee', [App\Http\Controllers\Admin\FinancialSettingController::class, 'update'])->name('admin.financialSettings.updateFee');
 
 });
 

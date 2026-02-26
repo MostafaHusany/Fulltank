@@ -75,6 +75,9 @@
 @push('custome-js')
 <script>
     (function () {
+        var filterClientId   = @json($filterClientId ?? null);
+        var filterClientName = @json($filterClientName ?? null);
+
         const ROUTES = {
             index   : "{{ route('admin.vehicles.index') }}",
             store   : "{{ route('admin.vehicles.store') }}",
@@ -137,16 +140,12 @@
                     { data: 'actions',            name: 'actions' },
                 ],
                 function (d) {
-                    if ($('#s-client_id').length)
-                        d.client_id = $('#s-client_id').val();
-                    if ($('#s-plate_number').length)
-                        d.plate_number = $('#s-plate_number').val();
-                    if ($('#s-model').length)
-                        d.model = $('#s-model').val();
-                    if ($('#s-fuel_type').length)
-                        d.fuel_type = $('#s-fuel_type').val();
-                    if ($('#s-status').length)
-                        d.status = $('#s-status').val();
+                    if (filterClientId) d.client_id = filterClientId;
+                    else if ($('#s-client_id').length) d.client_id = $('#s-client_id').val();
+                    if ($('#s-plate_number').length) d.plate_number = $('#s-plate_number').val();
+                    if ($('#s-model').length) d.model = $('#s-model').val();
+                    if ($('#s-fuel_type').length) d.fuel_type = $('#s-fuel_type').val();
+                    if ($('#s-status').length) d.status = $('#s-status').val();
                 }
             );
 
@@ -219,13 +218,32 @@
                 $('#client_id').select2(clientsSelect2Opts);
                 $('#edit-client_id').select2(clientsSelect2Opts);
 
+                $(document).on('click', '.toggle-btn[data-target-card="#createObjectCard"]', function () {
+                    if (filterClientId && filterClientName) {
+                        var $sel = $('#client_id');
+                        if ($sel.length) {
+                            $sel.empty().append(new Option(filterClientName, filterClientId, true, true)).trigger('change');
+                        }
+                    }
+                });
+
+                if (filterClientId && filterClientName) {
+                    $('.search-container').show(500);
+                }
+
                 axios.get(ROUTES.clients, { params: { q: '' } }).then(function (res) {
-                    let data = res.data || [];
-                    let $sel = $('#s-client_id');
+                    var data = res.data || [];
+                    var $sel = $('#s-client_id');
                     $sel.find('option:not(:first)').remove();
                     data.forEach(function (item) {
                         $sel.append(new Option((item.company_name || item.name) + (item.phone ? ' - ' + item.phone : ''), item.id));
                     });
+                    if (filterClientId && filterClientName) {
+                        if (!$sel.find('option[value="' + filterClientId + '"]').length) {
+                            $sel.append(new Option(filterClientName, filterClientId));
+                        }
+                        $sel.val(filterClientId).trigger('change');
+                    }
                 });
 
                 $(document).on('click', '.vehicle-history-btn', function () {

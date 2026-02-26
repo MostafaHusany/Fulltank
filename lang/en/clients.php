@@ -33,4 +33,6 @@ return [
     'document_delete_error' => 'Failed to delete document',
     'Documents'          => 'Documents',
     'Add New File'       => 'Add New File',
+    'Vehicles'           => 'Vehicles',
+    'Drivers'            => 'Drivers',
 ];

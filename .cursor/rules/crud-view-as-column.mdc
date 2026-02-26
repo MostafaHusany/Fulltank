@@ -1,0 +1,44 @@
+---
+description: View-as-Column pattern for CRUD/Management controllers - keep controllers clean
+alwaysApply: false
+globs: ["**/Http/Controllers/Admin/**/*Controller.php", "**/resources/views/admin/**/*.blade.php"]
+---
+
+# Project Standard: View-as-Column Pattern for CRUD
+
+When building DataTable or similar list views in Admin CRUD/Management controllers, **do not** put HTML markup directly in controller callbacks. Use the **View-as-Column** pattern instead.
+
+## Pattern
+
+1. **Create a dedicated Blade partial** for each column that renders HTML (badges, buttons, thumbnails, etc.).
+2. **In the controller**, use `view('path.to.column', compact('row'))->render()` to populate the column.
+
+### Controller Example
+
+```php
+->addColumn('proof_thumb', fn($row) => view('admin.deposit_requests.incs._proof_thumb', compact('row'))->render())
+->addColumn('status_badge', fn($row) => view('admin.deposit_requests.incs._status_badge', compact('row'))->render())
+->addColumn('actions', fn($row) => view('admin.deposit_requests.incs._actions', compact('row', 'permissions'))->render())
+```
+
+### Blade Partial Example
+
+Create `resources/views/admin/[module]/incs/_column_name.blade.php`:
+
+```blade
+@if($row->some_field)
+    <button type="button" class="btn btn-sm btn-outline-info" data-id="{{ $row->id }}">
+        <i class="fas fa-image"></i>
+    </button>
+@else
+    —
+@endif
+```
+
+## Conventions
+
+- Partial name: `_snake_case_column.blade.php` (underscore prefix, snake_case).
+- Location: `resources/views/admin/[module]/incs/`.
+- Variable: pass `$row` (and any other needed vars like `$permissions`) via `compact()`.
+- Always call `->render()` on the view so the controller returns a string for the DataTable cell.
+- Register columns that render HTML in `rawColumns(['column_name'])` so HTML is not escaped.

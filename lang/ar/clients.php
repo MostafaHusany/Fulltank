@@ -33,4 +33,6 @@ return [
     'document_delete_error' => 'فشل حذف الملف',
     'Documents'          => 'الملفات',
     'Add New File'       => 'إضافة ملف جديد',
+    'Vehicles'           => 'المركبات',
+    'Drivers'            => 'السائقون',
 ];

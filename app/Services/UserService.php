@@ -58,4 +58,48 @@ class UserService
 
         return str_replace('public/', '', $request->file($field)->store('public/media/clients_pictures'));
     }
+
+    /**
+     * Create a driver user (category=driver), link to client, optional vehicle, and init wallet with 0 balance.
+     */
+    public function createDriver(array $data): User
+    {
+        $data['category'] = 'driver';
+        $data['password'] = isset($data['password']) && $data['password']
+            ? bcrypt($data['password'])
+            : bcrypt('12345678');
+
+        if (empty($data['vehicle_id'])) {
+            $data['vehicle_id'] = null;
+        }
+
+        $user = User::create($data);
+
+        $user->wallet()->create([
+            'valide_balance'   => 0,
+            'pendding_balance' => 0,
+        ]);
+
+        return $user;
+    }
+
+    /**
+     * Update a driver user.
+     */
+    public function updateDriver(User $user, array $data): User
+    {
+        if (isset($data['password']) && $data['password']) {
+            $data['password'] = bcrypt($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
+        if (array_key_exists('vehicle_id', $data) && empty($data['vehicle_id'])) {
+            $data['vehicle_id'] = null;
+        }
+
+        $user->update($data);
+
+        return $user;
+    }
 }

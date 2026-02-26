@@ -14,15 +14,22 @@ class Wallet extends Model
         'user_id',
         'valide_balance',
         'pendding_balance',
+        'is_active',
     ];
 
     protected $casts = [
         'valide_balance'   => 'decimal:2',
         'pendding_balance' => 'decimal:2',
+        'is_active'        => 'boolean',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
     }
 }

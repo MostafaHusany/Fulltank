@@ -36,6 +36,9 @@ class VehicleController extends Controller
         if ($request->ajax()) {
             $model = $this->targetModel->query()
                 ->with('client:id,name,company_name')
+                ->when($request->filled('client_id'), function ($q) use ($request) {
+                    $q->where('client_id', $request->client_id);
+                })
                 ->orderBy('id', 'desc')
                 ->adminFilter();
 
@@ -59,7 +62,10 @@ class VehicleController extends Controller
             return $datatable_model->make(true);
         }
 
-        return view('admin.vehicles.index', compact('permissions'));
+        $filterClientId   = $request->get('client_id');
+        $filterClientName = $request->get('client_name');
+
+        return view('admin.vehicles.index', compact('permissions', 'filterClientId', 'filterClientName'));
     }
 
     public function store(Request $request)

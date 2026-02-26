@@ -43,8 +43,8 @@ class ClientController extends Controller
         if ($request->ajax()) {
             $model = $this->targetModel->query()
                 ->where('category', 'client')
-                ->with('clientCategory')
-                ->withCount('clientDocuments')
+                ->with(['clientCategory', 'wallet'])
+                ->withCount(['clientDocuments', 'vehicles', 'drivers'])
                 ->orderBy('id', 'desc')
                 ->adminFilter();
 
@@ -54,6 +54,16 @@ class ClientController extends Controller
                 })
                 ->addColumn('client_category_name', function ($row_object) {
                     return $row_object->clientCategory ? e($row_object->clientCategory->name) : '---';
+                })
+                ->addColumn('current_balance', function ($row_object) {
+                    $balance = $row_object->wallet ? (float) $row_object->wallet->valide_balance : 0;
+                    return number_format($balance, 2);
+                })
+                ->addColumn('vehicles_hub', function ($row_object) {
+                    return view('admin.clients.incs._vehicles_hub', compact('row_object'));
+                })
+                ->addColumn('drivers_hub', function ($row_object) {
+                    return view('admin.clients.incs._drivers_hub', compact('row_object'));
                 })
                 ->addColumn('documents_btn', function ($row_object) use ($permissions) {
                     return view('admin.clients.incs._documents_btn', compact('row_object', 'permissions'));

@@ -33,6 +33,8 @@ return [
     'Gove'                          => 'Governorate',
     'Dict'                          => 'District',
     'cancel'                        => 'Cancel',
+    'save'                          => 'Save',
+    'add'                           => 'Add',
     'Close'                         => 'Close',
     'Update'                        => 'Update',
 

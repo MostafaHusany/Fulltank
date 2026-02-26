@@ -10,6 +10,8 @@
             || auth()->user()->isAbleTo('roles_*')
             || auth()->user()->isAbleTo('clients_*')
             || auth()->user()->isAbleTo('vehicles_*')
+            || auth()->user()->isAbleTo('drivers_*')
+            || auth()->user()->isAbleTo('wallets_*')
         )
         <ul class="nav flex-column">
             @if( $user_category == 'admin' || auth()->user()->isAbleTo('dashboard_*') )
@@ -50,9 +52,51 @@
 
             @if( $user_category == 'admin' || auth()->user()->isAbleTo('vehicles_*') )
             <li class="nav-item">
-                <a class="nav-link {{ str_contains(Request::path(), '/vehicles') ? 'active' : ''}}" href="{{ route('admin.vehicles.index') }}">
+                <a class="nav-link {{ str_contains(Request::path(), '/vehicles') && !str_contains(Request::path(), 'vehicle-quotas') ? 'active' : ''}}" href="{{ route('admin.vehicles.index') }}">
                     <i class="fas mx-1 fa-car"></i>
                     <span class="mx-1">@lang('vehicles.Title Administration')</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ str_contains(Request::path(), 'vehicle-quotas') ? 'active' : ''}}" href="{{ route('admin.vehicleQuotas.index') }}">
+                    <i class="fas mx-1 fa-tachometer-alt"></i>
+                    <span class="mx-1">@lang('vehicle_quotas.Title')</span>
+                </a>
+            </li>
+            @endif
+
+            @if( $user_category == 'admin' || auth()->user()->isAbleTo('drivers_*') )
+            <li class="nav-item">
+                <a class="nav-link {{ str_contains(Request::path(), '/drivers') ? 'active' : ''}}" href="{{ route('admin.drivers.index') }}">
+                    <i class="fas mx-1 fa-id-badge"></i>
+                    <span class="mx-1">@lang('drivers.Title Administration')</span>
+                </a>
+            </li>
+            @endif
+
+            @if( $user_category == 'admin' || auth()->user()->isAbleTo('wallets_*') )
+            <li class="nav-item">
+                <a class="nav-link {{ str_contains(Request::path(), '/wallets') ? 'active' : ''}}" href="{{ route('admin.wallets.index') }}">
+                    <i class="fas mx-1 fa-wallet"></i>
+                    <span class="mx-1">@lang('wallets.Title Administration')</span>
+                </a>
+            </li>
+            @endif
+
+            @if( $user_category == 'admin' || auth()->user()->isAbleTo('depositRequests_*') )
+            <li class="nav-item">
+                <a class="nav-link {{ str_contains(Request::path(), '/deposit-requests') ? 'active' : ''}}" href="{{ route('admin.depositRequests.index') }}">
+                    <i class="fas mx-1 fa-money-bill-wave"></i>
+                    <span class="mx-1">@lang('deposit_requests.Title Administration')</span>
+                </a>
+            </li>
+            @endif
+
+            @if( $user_category == 'admin' || auth()->user()->isAbleTo('financialSettings_*') || auth()->user()->isAbleTo('paymentMethods_*') )
+            <li class="nav-item">
+                <a class="nav-link {{ str_contains(Request::path(), '/financial-settings') ? 'active' : ''}}" href="{{ route('admin.financialSettings.index') }}">
+                    <i class="fas mx-1 fa-cog"></i>
+                    <span class="mx-1">@lang('deposit_requests.Financial Settings')</span>
                 </a>
             </li>
             @endif
@@ -72,6 +116,14 @@
                 <a class="nav-link {{ str_contains(Request::path(), '/districts') ? 'active' : ''}}" href="{{ route('admin.districts.index') }}">
                     <i class="fas mx-1 fa-map-marker-alt"></i>
                     <span class="mx-1">@lang('layouts.Districts')</span>
+                </a>
+            </li>
+            @endif
+            @if( $user_category == 'admin' || auth()->user()->isAbleTo('governorates_*') )
+            <li class="nav-item">
+                <a class="nav-link {{ str_contains(Request::path(), '/governorates') ? 'active' : ''}}" href="{{ route('admin.governorates.index') }}">
+                    <i class="fas mx-1 fa-map"></i>
+                    <span class="mx-1">@lang('governorates.Title')</span>
                 </a>
             </li>
             @endif

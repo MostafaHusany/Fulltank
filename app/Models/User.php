@@ -32,7 +32,7 @@ class User extends Authenticatable implements LaratrustUser
     protected $fillable = [
         'name', 'company_name', 'client_category_id', 'phone', 'email', 'password', 'category',
         'phone_verified_at', 'email_verified_at', 'is_active',
-        'group_id', 'picture', 'partner_category_id'
+        'group_id', 'picture', 'partner_category_id', 'client_id', 'vehicle_id'
     ];
 
     /**
@@ -78,6 +78,24 @@ class User extends Authenticatable implements LaratrustUser
     public function vehicles()
     {
         return $this->hasMany(Vehicle::class, 'client_id');
+    }
+
+    /**
+     * Drivers assigned to this client (when this user is category=client).
+     */
+    public function drivers()
+    {
+        return $this->hasMany(User::class, 'client_id')->where('category', 'driver');
+    }
+
+    public function client()
+    {
+        return $this->belongsTo(User::class, 'client_id');
+    }
+
+    public function vehicle()
+    {
+        return $this->belongsTo(Vehicle::class, 'vehicle_id');
     }
 
     public function employee () {
@@ -129,6 +147,9 @@ class User extends Authenticatable implements LaratrustUser
             $query->whereIn('group_id', request()->query('groups'));
         }
 
+        if (request()->filled('client_id')) {
+            $query->where('client_id', request()->query('client_id'));
+        }
     }
 
     public function scopeStudentFilter (Builder $query) {

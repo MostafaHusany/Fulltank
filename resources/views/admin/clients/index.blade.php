@@ -49,6 +49,9 @@
                         <th>@lang('clients.Client Type')</th>
                         <th>@lang('clients.Email')</th>
                         <th>@lang('clients.Phone')</th>
+                        <th>@lang('wallets.Current Balance')</th>
+                        <th>@lang('clients.Vehicles')</th>
+                        <th>@lang('clients.Drivers')</th>
                         <th>@lang('clients.Documents')</th>
                         <th>@lang('layouts.Active')</th>
                         <th>@lang('layouts.Actions')</th>
@@ -133,6 +136,9 @@
                     { data: 'client_category_name', name: 'client_category_name' },
                     { data: 'email',              name: 'email' },
                     { data: 'phone',              name: 'phone' },
+                    { data: 'current_balance',    name: 'current_balance' },
+                    { data: 'vehicles_hub',       name: 'vehicles_hub' },
+                    { data: 'drivers_hub',        name: 'drivers_hub' },
                     { data: 'documents_btn',      name: 'documents_btn' },
                     { data: 'activation',         name: 'activation' },
                     { data: 'actions',            name: 'actions' },
