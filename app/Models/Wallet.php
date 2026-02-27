@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Wallet extends Model
 {
@@ -31,5 +32,13 @@ class Wallet extends Model
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    /**
+     * Get station associated with this wallet (via user_id).
+     */
+    public function station()
+    {
+        return $this->hasOne(Station::class, 'user_id', 'user_id');
     }
 }

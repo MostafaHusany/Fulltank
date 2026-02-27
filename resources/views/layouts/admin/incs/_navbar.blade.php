@@ -1,144 +1,210 @@
 <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
     <div class="position-sticky pt-3 sidebar-sticky">
-        @php 
-            $user_category = auth()->user()->category;  
+        @php
+            $user = auth()->user();
+            $isAdmin = $user->category == 'admin';
+            $path = Request::path();
+
+            $canAccess = function ($permission) use ($user, $isAdmin) {
+                if (is_array($permission)) {
+                    foreach ($permission as $perm) {
+                        if ($isAdmin || $user->isAbleTo($perm . '_*')) return true;
+                    }
+                    return false;
+                }
+                return $isAdmin || $user->isAbleTo($permission . '_*');
+            };
+
+            $isActive = function ($segment, $exclude = null) use ($path) {
+                if ($exclude && str_contains($path, $exclude)) {
+                    return false;
+                }
+                return str_contains($path, $segment);
+            };
+
+            $navSections = [
+                [
+                    'key'   => 'dashboard',
+                    'title' => null,
+                    'items' => [
+                        [
+                            'permission' => 'dashboard',
+                            'route'      => 'admin.dashboard.index',
+                            'icon'       => 'fa-tachometer-alt',
+                            'label'      => 'layouts.Dashboard',
+                            'active'     => str_ends_with($path, 'admin'),
+                        ],
+                    ],
+                ],
+                [
+                    'key'   => 'user_management',
+                    'title' => 'layouts.User_Management',
+                    'items' => [
+                        [
+                            'permission' => 'users',
+                            'route'      => 'admin.users.index',
+                            'icon'       => 'fa-user-cog',
+                            'label'      => 'layouts.Users',
+                            'segment'    => '/users',
+                        ],
+                        [
+                            'permission' => 'roles',
+                            'route'      => 'admin.roles.index',
+                            'icon'       => 'fa-id-card-alt',
+                            'label'      => 'layouts.Roles',
+                            'segment'    => '/roles',
+                        ],
+                    ],
+                ],
+                [
+                    'key'   => 'fleet_management',
+                    'title' => 'layouts.Fleet_Management',
+                    'items' => [
+                        [
+                            'permission' => 'clients',
+                            'route'      => 'admin.clients.index',
+                            'icon'       => 'fa-users',
+                            'label'      => 'clients.Title Administration',
+                            'segment'    => '/clients',
+                        ],
+                        [
+                            'permission' => 'vehicles',
+                            'route'      => 'admin.vehicles.index',
+                            'icon'       => 'fa-car',
+                            'label'      => 'vehicles.Title Administration',
+                            'segment'    => '/vehicles',
+                            'exclude'    => 'vehicle-quotas',
+                        ],
+                        [
+                            'permission' => 'vehicles',
+                            'route'      => 'admin.vehicleQuotas.index',
+                            'icon'       => 'fa-tachometer-alt',
+                            'label'      => 'vehicle_quotas.Title',
+                            'segment'    => 'vehicle-quotas',
+                        ],
+                        [
+                            'permission' => 'drivers',
+                            'route'      => 'admin.drivers.index',
+                            'icon'       => 'fa-id-badge',
+                            'label'      => 'drivers.Title Administration',
+                            'segment'    => '/drivers',
+                        ],
+                    ],
+                ],
+                [
+                    'key'   => 'station_operations',
+                    'title' => 'layouts.Station_Operations',
+                    'items' => [
+                        [
+                            'permission' => 'stations',
+                            'route'      => 'admin.stations.index',
+                            'icon'       => 'fa-gas-pump',
+                            'label'      => 'stations.Title',
+                            'segment'    => '/stations',
+                            'exclude'    => 'station-w',
+                        ],
+                        [
+                            'permission' => 'stationWorkers',
+                            'route'      => 'admin.stationWorkers.index',
+                            'icon'       => 'fa-hard-hat',
+                            'label'      => 'station_workers.Title',
+                            'segment'    => '/station-workers',
+                        ],
+                        [
+                            'permission' => 'stationWallets',
+                            'route'      => 'admin.stationWallets.index',
+                            'icon'       => 'fa-cash-register',
+                            'label'      => 'station_wallets.Title',
+                            'segment'    => '/station-wallets',
+                        ],
+                    ],
+                ],
+                [
+                    'key'   => 'financial',
+                    'title' => 'layouts.Financial',
+                    'items' => [
+                        [
+                            'permission' => 'wallets',
+                            'route'      => 'admin.wallets.index',
+                            'icon'       => 'fa-wallet',
+                            'label'      => 'wallets.Title Administration',
+                            'segment'    => '/wallets',
+                            'exclude'    => 'station-wallets',
+                        ],
+                        [
+                            'permission' => 'depositRequests',
+                            'route'      => 'admin.depositRequests.index',
+                            'icon'       => 'fa-money-bill-wave',
+                            'label'      => 'deposit_requests.Title Administration',
+                            'segment'    => '/deposit-requests',
+                        ],
+                        [
+                            'permission' => ['financialSettings', 'paymentMethods'],
+                            'route'      => 'admin.financialSettings.index',
+                            'icon'       => 'fa-sliders-h',
+                            'label'      => 'deposit_requests.Financial Settings',
+                            'segment'    => '/financial-settings',
+                        ],
+                    ],
+                ],
+                [
+                    'key'   => 'settings',
+                    'title' => 'layouts.Settings',
+                    'items' => [
+                        [
+                            'permission' => 'governorates',
+                            'route'      => 'admin.governorates.index',
+                            'icon'       => 'fa-map',
+                            'label'      => 'governorates.Title',
+                            'segment'    => '/governorates',
+                        ],
+                        [
+                            'permission' => 'fuelTypes',
+                            'route'      => 'admin.fuelTypes.index',
+                            'icon'       => 'fa-gas-pump',
+                            'label'      => 'fuel_types.Title',
+                            'segment'    => '/fuel-types',
+                        ],
+                    ],
+                ],
+            ];
         @endphp
 
-        @if( $user_category == 'admin' 
-            || auth()->user()->isAbleTo('dashboard_*') 
-            || auth()->user()->isAbleTo('users_*')
-            || auth()->user()->isAbleTo('roles_*')
-            || auth()->user()->isAbleTo('clients_*')
-            || auth()->user()->isAbleTo('vehicles_*')
-            || auth()->user()->isAbleTo('drivers_*')
-            || auth()->user()->isAbleTo('wallets_*')
-        )
-        <ul class="nav flex-column">
-            @if( $user_category == 'admin' || auth()->user()->isAbleTo('dashboard_*') )
-            <li class="nav-item">
-                <a class="nav-link {{ str_ends_with(Request::path(), 'admin') ? 'active' : ''}}" aria-current="page" href="{{ route('admin.dashboard.index') }}">
-                    <i class="fas mx-1 fa-tachometer-alt"></i>
-                    <span class="mx-1">@lang('layouts.Dashboard')</span>
-                </a>
-            </li>
-            @endif
-            
-            @if( $user_category == 'admin' || auth()->user()->isAbleTo('users_*') )
-            <li class="nav-item">
-                <a class="nav-link {{ str_contains(Request::path(), '/users') ? 'active' : ''}}" href="{{ route('admin.users.index') }}">
-                    <i class="fas mx-1 fa-user-cog"></i>
-                    <span class="mx-1">@lang('layouts.Users')</span>
-                </a>
-            </li>
-            @endif
+        @foreach($navSections as $section)
+            @php
+                $visibleItems = collect($section['items'])->filter(function ($item) use ($canAccess) {
+                    return $canAccess($item['permission']);
+                });
+            @endphp
 
-            @if( $user_category == 'admin' || auth()->user()->isAbleTo('roles_*') )
-            <li class="nav-item">
-                <a class="nav-link {{ str_contains(Request::path(), '/roles') ? 'active' : ''}}" href="{{ route('admin.roles.index') }}">
-                    <i class="fas mx-1 fa-id-card-alt"></i>
-                    <span class="mx-1">@lang('layouts.Roles')</span>
-                </a>
-            </li>
+            @if($visibleItems->isNotEmpty())
+                {{-- Section Header (skip for dashboard) --}}
+                @if($section['title'])
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
+                    <span>@lang($section['title'])</span>
+                </h6>
+                @endif
+
+                {{-- Section Items --}}
+                <ul class="nav flex-column @if($section['title']) mb-2 @endif">
+                    @foreach($visibleItems as $item)
+                        @php
+                            $activeClass = '';
+                            if (isset($item['active'])) {
+                                $activeClass = $item['active'] ? 'active' : '';
+                            } elseif (isset($item['segment'])) {
+                                $activeClass = $isActive($item['segment'], $item['exclude'] ?? null) ? 'active' : '';
+                            }
+                        @endphp
+                        <li class="nav-item">
+                            <a class="nav-link {{ $activeClass }}" href="{{ route($item['route']) }}">
+                                <i class="fas mx-1 {{ $item['icon'] }}"></i>
+                                <span class="mx-1">@lang($item['label'])</span>
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
             @endif
-
-            @if( $user_category == 'admin' || auth()->user()->isAbleTo('clients_*') )
-            <li class="nav-item">
-                <a class="nav-link {{ str_contains(Request::path(), '/clients') ? 'active' : ''}}" href="{{ route('admin.clients.index') }}">
-                    <i class="fas mx-1 fa-users"></i>
-                    <span class="mx-1">@lang('clients.Title Administration')</span>
-                </a>
-            </li>
-            @endif
-
-            @if( $user_category == 'admin' || auth()->user()->isAbleTo('vehicles_*') )
-            <li class="nav-item">
-                <a class="nav-link {{ str_contains(Request::path(), '/vehicles') && !str_contains(Request::path(), 'vehicle-quotas') ? 'active' : ''}}" href="{{ route('admin.vehicles.index') }}">
-                    <i class="fas mx-1 fa-car"></i>
-                    <span class="mx-1">@lang('vehicles.Title Administration')</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ str_contains(Request::path(), 'vehicle-quotas') ? 'active' : ''}}" href="{{ route('admin.vehicleQuotas.index') }}">
-                    <i class="fas mx-1 fa-tachometer-alt"></i>
-                    <span class="mx-1">@lang('vehicle_quotas.Title')</span>
-                </a>
-            </li>
-            @endif
-
-            @if( $user_category == 'admin' || auth()->user()->isAbleTo('drivers_*') )
-            <li class="nav-item">
-                <a class="nav-link {{ str_contains(Request::path(), '/drivers') ? 'active' : ''}}" href="{{ route('admin.drivers.index') }}">
-                    <i class="fas mx-1 fa-id-badge"></i>
-                    <span class="mx-1">@lang('drivers.Title Administration')</span>
-                </a>
-            </li>
-            @endif
-
-            @if( $user_category == 'admin' || auth()->user()->isAbleTo('stations_*') )
-            <li class="nav-item">
-                <a class="nav-link {{ str_contains(Request::path(), '/stations') ? 'active' : ''}}" href="{{ route('admin.stations.index') }}">
-                    <i class="fas mx-1 fa-gas-pump"></i>
-                    <span class="mx-1">@lang('stations.Title')</span>
-                </a>
-            </li>
-            @endif
-
-            @if( $user_category == 'admin' || auth()->user()->isAbleTo('wallets_*') )
-            <li class="nav-item">
-                <a class="nav-link {{ str_contains(Request::path(), '/wallets') ? 'active' : ''}}" href="{{ route('admin.wallets.index') }}">
-                    <i class="fas mx-1 fa-wallet"></i>
-                    <span class="mx-1">@lang('wallets.Title Administration')</span>
-                </a>
-            </li>
-            @endif
-
-            @if( $user_category == 'admin' || auth()->user()->isAbleTo('depositRequests_*') )
-            <li class="nav-item">
-                <a class="nav-link {{ str_contains(Request::path(), '/deposit-requests') ? 'active' : ''}}" href="{{ route('admin.depositRequests.index') }}">
-                    <i class="fas mx-1 fa-money-bill-wave"></i>
-                    <span class="mx-1">@lang('deposit_requests.Title Administration')</span>
-                </a>
-            </li>
-            @endif
-
-            @if( $user_category == 'admin' || auth()->user()->isAbleTo('financialSettings_*') || auth()->user()->isAbleTo('paymentMethods_*') )
-            <li class="nav-item">
-                <a class="nav-link {{ str_contains(Request::path(), '/financial-settings') ? 'active' : ''}}" href="{{ route('admin.financialSettings.index') }}">
-                    <i class="fas mx-1 fa-cog"></i>
-                    <span class="mx-1">@lang('deposit_requests.Financial Settings')</span>
-                </a>
-            </li>
-            @endif
-            
-        </ul>
-        @endif
-
-
-        @if( $user_category == 'admin' || auth()->user()->isAbleTo('districts_*') || auth()->user()->isAbleTo('governorates_*') || auth()->user()->isAbleTo('fuelTypes_*') )
-        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
-            <span>@lang('layouts.Settings')</span>
-        </h6>
-
-        <ul class="nav flex-column mb-2">
-            @if( $user_category == 'admin' || auth()->user()->isAbleTo('governorates_*') )
-            <li class="nav-item">
-                <a class="nav-link {{ str_contains(Request::path(), '/governorates') ? 'active' : ''}}" href="{{ route('admin.governorates.index') }}">
-                    <i class="fas mx-1 fa-map"></i>
-                    <span class="mx-1">@lang('governorates.Title')</span>
-                </a>
-            </li>
-            @endif
-            @if( $user_category == 'admin' || auth()->user()->isAbleTo('fuelTypes_*') )
-            <li class="nav-item">
-                <a class="nav-link {{ str_contains(Request::path(), '/fuel-types') ? 'active' : ''}}" href="{{ route('admin.fuelTypes.index') }}">
-                    <i class="fas mx-1 fa-gas-pump"></i>
-                    <span class="mx-1">@lang('fuel_types.Title')</span>
-                </a>
-            </li>
-            @endif
-        </ul>
-        @endif
-
-        
+        @endforeach
     </div>
 </nav>

@@ -7,6 +7,11 @@ return [
     'Trainers'                      => 'المدربين',
     'Roles'                         => 'الفئات',
     'Settings'                      => 'الاعدادات',
+    
+    'User_Management'               => 'إدارة المستخدمين',
+    'Fleet_Management'              => 'إدارة الأسطول',
+    'Station_Operations'            => 'عمليات المحطات',
+    'Financial'                     => 'المالية',
     'Consulting_Departments'        => 'اقسام الأستشارات',
     'Services'                      => 'الخدمات',
     'Orders'                        => 'الطلبات',

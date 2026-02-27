@@ -195,6 +195,16 @@ Route::group([
     Route::put('fuel-types/{id}/toggle-status', [App\Http\Controllers\Admin\FuelTypeController::class, 'toggleStatus'])->name('admin.fuelTypes.toggleStatus');
     Route::get('fuel-types-list', [App\Http\Controllers\Admin\FuelTypeController::class, 'listActive'])->name('admin.fuelTypes.list');
 
+    Route::get('station-wallets', [App\Http\Controllers\Admin\StationWalletController::class, 'index'])->name('admin.stationWallets.index');
+    Route::put('station-wallets/{walletId}/toggle-status', [App\Http\Controllers\Admin\StationWalletController::class, 'toggleStatus'])->name('admin.stationWallets.toggleStatus');
+    Route::get('station-wallets/{walletId}/transactions', [App\Http\Controllers\Admin\StationWalletController::class, 'transactions'])->name('admin.stationWallets.transactions');
+
+    Route::get('station-workers', [App\Http\Controllers\Admin\StationWorkerController::class, 'index'])->name('admin.stationWorkers.index');
+    Route::post('station-workers', [App\Http\Controllers\Admin\StationWorkerController::class, 'store'])->name('admin.stationWorkers.store');
+    Route::get('station-workers/{id}', [App\Http\Controllers\Admin\StationWorkerController::class, 'show'])->name('admin.stationWorkers.show');
+    Route::put('station-workers/{id}', [App\Http\Controllers\Admin\StationWorkerController::class, 'update'])->name('admin.stationWorkers.update');
+    Route::delete('station-workers/{id}', [App\Http\Controllers\Admin\StationWorkerController::class, 'destroy'])->name('admin.stationWorkers.destroy');
+
 });
 
 

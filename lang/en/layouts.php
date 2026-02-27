@@ -6,7 +6,12 @@ return [
     'Parents'                       => 'Parents',
     'Trainers'                      => 'Trainers',
     'Roles'                         => 'Roles',
-    'Settings'                      => 'Settings', 
+    'Settings'                      => 'Settings',
+    
+    'User_Management'               => 'User Management',
+    'Fleet_Management'              => 'Fleet Management',
+    'Station_Operations'            => 'Station Operations',
+    'Financial'                     => 'Financial', 
     'Districts'                     => 'Districts',
     'Consulting_Departments'        => 'Consulting Departments',
     'Services'                      => 'Services',

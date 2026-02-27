@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'Title'               => 'محافظ المحطات',
+    'Station Name'        => 'اسم المحطة',
+    'Governorate'         => 'المحافظة',
+    'District'            => 'المنطقة',
+    'Current Balance'     => 'الرصيد الحالي',
+    'Wallet Status'       => 'حالة المحفظة',
+    'Transaction History' => 'سجل المعاملات',
+    'transactions'        => 'معاملات',
+    'Date'                => 'التاريخ',
+    'Type'                => 'النوع',
+    'Amount'              => 'المبلغ',
+    'Performer'           => 'المنفذ',
+    'Before'              => 'قبل',
+    'After'               => 'بعد',
+    'Notes'               => 'ملاحظات',
+    'deposit'             => 'إيداع',
+    'withdrawal'          => 'سحب',
+    'transfer'            => 'تحويل',
+    'fueling'             => 'تعبئة وقود',
+    'status_updated'      => 'تم تحديث حالة المحفظة',
+    'wallet_not_found'    => 'المحفظة غير موجودة',
+    'wallet_inactive'     => 'المحفظة غير نشطة',
+    'object_error'        => 'حدث خطأ',
+];

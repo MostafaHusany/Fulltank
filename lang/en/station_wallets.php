@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'Title'               => 'Station Wallets',
+    'Station Name'        => 'Station Name',
+    'Governorate'         => 'Governorate',
+    'District'            => 'District',
+    'Current Balance'     => 'Current Balance',
+    'Wallet Status'       => 'Wallet Status',
+    'Transaction History' => 'Transaction History',
+    'transactions'        => 'transactions',
+    'Date'                => 'Date',
+    'Type'                => 'Type',
+    'Amount'              => 'Amount',
+    'Performer'           => 'Performer',
+    'Before'              => 'Before',
+    'After'               => 'After',
+    'Notes'               => 'Notes',
+    'deposit'             => 'Deposit',
+    'withdrawal'          => 'Withdrawal',
+    'transfer'            => 'Transfer',
+    'fueling'             => 'Fueling',
+    'status_updated'      => 'Wallet status updated',
+    'wallet_not_found'    => 'Wallet not found',
+    'wallet_inactive'     => 'Wallet is inactive',
+    'object_error'        => 'An error occurred',
+];
