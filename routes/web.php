@@ -205,6 +205,12 @@ Route::group([
     Route::put('station-workers/{id}', [App\Http\Controllers\Admin\StationWorkerController::class, 'update'])->name('admin.stationWorkers.update');
     Route::delete('station-workers/{id}', [App\Http\Controllers\Admin\StationWorkerController::class, 'destroy'])->name('admin.stationWorkers.destroy');
 
+    Route::get('fuel-transactions', [App\Http\Controllers\Admin\FuelTransactionController::class, 'index'])->name('admin.fuelTransactions.index');
+    Route::post('fuel-transactions', [App\Http\Controllers\Admin\FuelTransactionController::class, 'store'])->name('admin.fuelTransactions.store');
+    Route::get('fuel-transactions/{id}', [App\Http\Controllers\Admin\FuelTransactionController::class, 'show'])->name('admin.fuelTransactions.show');
+    Route::put('fuel-transactions/{id}', [App\Http\Controllers\Admin\FuelTransactionController::class, 'update'])->name('admin.fuelTransactions.update');
+    Route::get('fuel-transactions/{id}/meter-image', [App\Http\Controllers\Admin\FuelTransactionController::class, 'viewMeterImage'])->name('admin.fuelTransactions.viewImage');
+
 });
 
 

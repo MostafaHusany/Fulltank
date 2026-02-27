@@ -17,7 +17,7 @@ return new class extends Migration
 
             $table->foreignId('wallet_id')->constrained('wallets')->cascadeOnDelete();
             $table->decimal('amount', 15, 2);
-            $table->enum('type', ['deposit', 'withdrawal', 'transfer']);
+            $table->enum('type', ['deposit', 'withdrawal', 'transfer', 'fuel_debit', 'fuel_credit', 'fuel_refund', 'fuel_refund_debit']);
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->text('notes')->nullable();
             $table->decimal('before_balance', 15, 2);

@@ -124,6 +124,13 @@
                     'title' => 'layouts.Financial',
                     'items' => [
                         [
+                            'permission' => 'fuelTransactions',
+                            'route'      => 'admin.fuelTransactions.index',
+                            'icon'       => 'fa-exchange-alt',
+                            'label'      => 'fuel_transactions.Title',
+                            'segment'    => '/fuel-transactions',
+                        ],
+                        [
                             'permission' => 'wallets',
                             'route'      => 'admin.wallets.index',
                             'icon'       => 'fa-wallet',
