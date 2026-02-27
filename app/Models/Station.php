@@ -40,4 +40,14 @@ class Station extends Model
     {
         return $this->belongsToMany(FuelType::class, 'station_fuel_types')->withTimestamps();
     }
+
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class, 'user_id', 'user_id');
+    }
+
+    public function settlements()
+    {
+        return $this->hasMany(Settlement::class);
+    }
 }

@@ -2,124 +2,100 @@
 
 namespace App\Http\Controllers\Admin;
 
-use LaravelLocalization;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-use App\Models\User;
-use App\Models\Semester;
-use App\Models\Employee;
-use App\Models\SchoolGrade;
-use App\Models\StudentPayment;
-use App\Models\AdmissionStudent;
+use Log;
+use Exception;
+use LaravelLocalization;
+use Illuminate\Support\Facades\Validator;
 
-// use App\Models\District;
-// use App\Models\Participant;
-
+use App\Services\DashboardService;
 use App\Http\Traits\ResponseTemplate;
 
 class DashboardController extends Controller
 {
     use ResponseTemplate;
 
-    public function index (Request $request) {
-        // get main data in static and ajax
-        
-        if ($request->get_counts) {
-            $is_ar = LaravelLocalization::getCurrentLocale() == 'ar'; 
+    private $dashboardService;
 
-            $semester  = Semester::where('is_active', 1)->first();
-            $employees = Employee::whereNot('category', 'teacher')->whereHas('user', fn ($q) => $q->where('is_active', 1))->count();
-            $teachers  = Employee::where('category', 'teacher')->whereHas('user', fn ($q) => $q->where('is_active', 1))->count();
-            
-            if (isset($semester)) {
-                $male_students   = AdmissionStudent::where('gender', 'male')->where('semester_id', $semester->id)->where('status', 'accepted')->count();
-                $female_students = AdmissionStudent::where('gender', 'female')->where('semester_id', $semester->id)->where('status', 'accepted')->count();
-                
-                $student_counts = AdmissionStudent::with('level')
-                ->selectRaw('level_id, COUNT(*) as total_students')
-                ->where('semester_id', $semester->id)
-                ->where('status', 'accepted')
-                ->groupBy('level_id')
-                ->get()
-                ->map(function ($student) use ($is_ar) {
-                    return [
-                        'level_name'     => $is_ar ? $student->level->ar_title : $student->level->en_title,
-                        'total_students' => $student->total_students,
-                    ];
-                });
-            } else {
-                $male_students   = 0; 
-                $female_students = 0;
-                $student_counts  = [];
-            }
-
-            $total_expected = StudentPayment::where('status', '!=', 'canceled')->where('is_installment', 0)->adminFilter()->sum('amount');
-            $total_real     = StudentPayment::where('status', 'paied')->where('is_installment', 0)->adminFilter()->sum('amount');
-            $total_cash     = StudentPayment::where('status', 'paied')->where('is_installment', 0)->where('payment_method', 'cash')->adminFilter()->sum('amount');
-            $total_online   = StudentPayment::where('status', 'paied')->where('is_installment', 0)->where('payment_method', '!=', 'cash')->adminFilter()->sum('amount');
-
-            $incomes = StudentPayment::with('semester')
-            ->selectRaw('semester_id, SUM(amount) as total_income')
-            ->groupBy('semester_id')
-            ->get()
-            ->map(function ($payment) {
-                return [
-                    'academic_year' => $payment->semester->title,
-                    'total_income' => $payment->total_income,
-                ];
-            });
-
-            $employee_counts = Employee::select('category')
-            ->selectRaw('COUNT(*) as total')
-            ->groupBy('category')
-            ->get();
-
-            $teacher_counts = SchoolGrade::has('teachers')
-            ->withCount('teachers')
-            ->get()
-            ->map(function ($level) use ($is_ar) {
-                return [
-                    'level_name'    => $is_ar ? $level->ar_title : $level->en_title,
-                    'teacher_count' => $level->teachers_count,
-                ];
-            });
-
-            $data = [
-                'employees'         => $employees, 
-                'teachers'          => $teachers,
-                'male_students'     => $male_students,
-                'female_students'   => $female_students,
-                
-                'expected'          => $total_expected,
-                'real'              => $total_real, 
-                'cash'              => $total_cash, 
-                'online'            => $total_online,
-
-                'incomes'           => $incomes,
-                'student_counts'    => $student_counts,
-
-                'employee_counts'   => $employee_counts,
-                'teacher_counts'    => $teacher_counts
-            ];
-
-            return $this->responseTemplate($data, true, null);
-        }
-
-        if ($request->get_participants) {
-            
-            $participants = Participant::query()
-            ->with(['gove'])
-            ->select(['id', 'name', 'gove_id', 'gove_id', 'participant_type_id', 'implementation_type_id', 'umbrella_initiative_id', 'dawwie_activitie_id', 'created_at'])
-            ->adminFilter()
-            ->get();
-            
-            if (isset($request->gove_id)) $gove = District::find($request->gove);
-            
-            return $this->responseTemplate(['participants' => $participants, 'gove' => isset($gove) ? $gove : null], true, null);
-        }
-
-        return view('admin.dashboard.index');
+    public function __construct(DashboardService $dashboardService)
+    {
+        $this->dashboardService = $dashboardService;
     }
 
+    public function index(Request $request)
+    {
+        $is_ar = LaravelLocalization::getCurrentLocale() == 'ar';
+
+        $statCards = $this->dashboardService->getStatCards();
+        $governorates = $this->dashboardService->getGovernorates();
+
+        return view('admin.dashboard.index', compact('is_ar', 'statCards', 'governorates'));
+    }
+
+    public function getChartData(Request $request)
+    {
+        try {
+            $weeklyTrend = $this->dashboardService->getWeeklyConsumptionTrend();
+            $fuelDistribution = $this->dashboardService->getFuelTypeDistribution();
+            $monthlyTrend = $this->dashboardService->getMonthlyTrend();
+
+            return response()->json([
+                'success'           => true,
+                'weekly_trend'      => $weeklyTrend,
+                'fuel_distribution' => $fuelDistribution,
+                'monthly_trend'     => $monthlyTrend,
+            ]);
+        } catch (Exception $e) {
+            Log::error('DashboardController@getChartData Exception', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'msg' => $e->getMessage()]);
+        }
+    }
+
+    public function getMapData(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'governorate_id' => 'nullable|exists:governorates,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'msg' => $validator->errors()]);
+        }
+
+        try {
+            $governorateId = $request->filled('governorate_id') ? (int) $request->governorate_id : null;
+
+            $stations = $this->dashboardService->getStationsForMap($governorateId);
+            $center = null;
+
+            if ($governorateId) {
+                $center = $this->dashboardService->getGovernorateCenter($governorateId);
+            }
+
+            return response()->json([
+                'success'  => true,
+                'stations' => $stations,
+                'center'   => $center,
+            ]);
+        } catch (Exception $e) {
+            Log::error('DashboardController@getMapData Exception', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'msg' => $e->getMessage()]);
+        }
+    }
+
+    public function getStats(Request $request)
+    {
+        try {
+            $statCards = $this->dashboardService->getStatCards();
+
+            return response()->json([
+                'success' => true,
+                'stats'   => $statCards,
+            ]);
+        } catch (Exception $e) {
+            Log::error('DashboardController@getStats Exception', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'msg' => $e->getMessage()]);
+        }
+    }
 }

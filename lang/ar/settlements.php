@@ -1,0 +1,66 @@
+<?php
+
+return [
+    'Title'                     => 'التسويات',
+    'Title Administration'      => 'إدارة التسويات',
+
+    'Stations Balances'         => 'أرصدة المحطات',
+    'Settlement History'        => 'سجل التسويات',
+    'Create Settlement'         => 'إنشاء تسوية',
+    'Confirm Settlement'        => 'تأكيد التسوية',
+
+    'Station'                   => 'المحطة',
+    'Governorate'               => 'المحافظة',
+    'District'                  => 'المنطقة',
+    'Unsettled Balance'         => 'الرصيد غير المسوى',
+    'Last Settlement'           => 'آخر تسوية',
+    'Available Balance'         => 'الرصيد المتاح',
+    'Bank Account Details'      => 'تفاصيل الحساب البنكي',
+    'Not provided'              => 'غير متوفر',
+    'Amount'                    => 'المبلغ',
+    'Payment Method'            => 'طريقة الدفع',
+    'Transaction Details'       => 'تفاصيل المعاملة',
+    'Receipt Image'             => 'صورة الإيصال',
+    'Receipt'                   => 'الإيصال',
+    'Reference'                 => 'المرجع',
+    'Admin'                     => 'المسؤول',
+    'Date'                      => 'التاريخ',
+    'Date From'                 => 'من تاريخ',
+    'Date To'                   => 'إلى تاريخ',
+    'Status'                    => 'الحالة',
+
+    'Station Details'           => 'تفاصيل المحطة',
+    'Name'                      => 'الاسم',
+    'Manager'                   => 'المدير',
+    'Phone'                     => 'الهاتف',
+    'Address'                   => 'العنوان',
+    'Select Station'            => 'اختر المحطة',
+    'Select Payment Method'     => 'اختر طريقة الدفع',
+    'All'                       => 'الكل',
+
+    'method_cash'               => 'نقدي',
+    'method_bank_transfer'      => 'تحويل بنكي',
+    'method_check'              => 'شيك',
+
+    'Active'                    => 'نشط',
+    'Inactive'                  => 'غير نشط',
+    'Wallet Inactive'           => 'المحفظة غير نشطة',
+    'No Balance'                => 'لا يوجد رصيد',
+    'No Wallet'                 => 'لا توجد محفظة',
+    'Loading'                   => 'جاري التحميل...',
+    'No stations found'         => 'لم يتم العثور على محطات',
+    'Error loading stations'    => 'خطأ في تحميل المحطات',
+
+    'amount_hint'               => 'أدخل المبلغ المراد تسويته (لا يمكن تجاوز الرصيد المتاح)',
+    'transaction_details_hint'  => 'رقم التحويل البنكي، رقم الشيك، أو أي مرجع آخر...',
+    'receipt_hint'              => 'ارفع إثبات الدفع (JPEG، PNG، الحد الأقصى 5 ميجابايت)',
+
+    'object_created'            => 'تم إنشاء التسوية بنجاح',
+    'object_not_found'          => 'التسوية غير موجودة',
+    'object_error'              => 'حدث خطأ، يرجى المحاولة مرة أخرى',
+
+    'station_wallet_not_found'  => 'محفظة المحطة غير موجودة',
+    'station_wallet_inactive'   => 'محفظة المحطة غير نشطة',
+    'amount_exceeds_balance'    => 'مبلغ التسوية يتجاوز الرصيد المتاح',
+    'invalid_amount'            => 'مبلغ التسوية غير صالح',
+];

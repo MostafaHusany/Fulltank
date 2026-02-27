@@ -211,6 +211,27 @@ Route::group([
     Route::put('fuel-transactions/{id}', [App\Http\Controllers\Admin\FuelTransactionController::class, 'update'])->name('admin.fuelTransactions.update');
     Route::get('fuel-transactions/{id}/meter-image', [App\Http\Controllers\Admin\FuelTransactionController::class, 'viewMeterImage'])->name('admin.fuelTransactions.viewImage');
 
+    Route::get('settlements', [App\Http\Controllers\Admin\SettlementController::class, 'index'])->name('admin.settlements.index');
+    Route::post('settlements', [App\Http\Controllers\Admin\SettlementController::class, 'store'])->name('admin.settlements.store');
+    Route::get('settlements/{id}', [App\Http\Controllers\Admin\SettlementController::class, 'show'])->name('admin.settlements.show');
+    Route::get('settlements/{id}/receipt', [App\Http\Controllers\Admin\SettlementController::class, 'viewReceipt'])->name('admin.settlements.viewReceipt');
+
+    Route::get('dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard.index');
+    Route::get('dashboard/chart-data', [App\Http\Controllers\Admin\DashboardController::class, 'getChartData'])->name('admin.dashboard.chartData');
+    Route::get('dashboard/map-data', [App\Http\Controllers\Admin\DashboardController::class, 'getMapData'])->name('admin.dashboard.mapData');
+    Route::get('dashboard/stats', [App\Http\Controllers\Admin\DashboardController::class, 'getStats'])->name('admin.dashboard.stats');
+
+    Route::get('reports', [App\Http\Controllers\Admin\ReportController::class, 'index'])->name('admin.reports.index');
+    Route::get('reports/client-statement', [App\Http\Controllers\Admin\ReportController::class, 'clientStatement'])->name('admin.reports.clientStatement');
+    Route::get('reports/station-report', [App\Http\Controllers\Admin\ReportController::class, 'stationReport'])->name('admin.reports.stationReport');
+    Route::get('reports/vehicle-consumption', [App\Http\Controllers\Admin\ReportController::class, 'vehicleConsumption'])->name('admin.reports.vehicleConsumption');
+    Route::get('reports/vehicle-detail', [App\Http\Controllers\Admin\ReportController::class, 'vehicleDetail'])->name('admin.reports.vehicleDetail');
+    Route::get('reports/overall-summary', [App\Http\Controllers\Admin\ReportController::class, 'overallSummary'])->name('admin.reports.overallSummary');
+    Route::get('reports/export-pdf', [App\Http\Controllers\Admin\ReportController::class, 'exportPdf'])->name('admin.reports.exportPdf');
+
+    Route::get('stations-search', [App\Http\Controllers\Admin\StationController::class, 'dataAjax'])->name('admin.search.stations');
+    Route::get('vehicles-search', [App\Http\Controllers\Admin\VehicleController::class, 'dataAjax'])->name('admin.search.vehicles');
+
 });
 
 

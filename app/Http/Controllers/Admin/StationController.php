@@ -185,4 +185,23 @@ class StationController extends Controller
         $user->save();
         return $this->responseTemplate($user->fresh(), true, [__('stations.status_updated')]);
     }
+
+    public function dataAjax(Request $request)
+    {
+        $query = Station::query();
+
+        if ($request->filled('q')) {
+            $search = $request->q;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('manager_name', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('governorate_id')) {
+            $query->where('governorate_id', $request->governorate_id);
+        }
+
+        return $query->orderBy('name')->limit(30)->get(['id', 'name', 'manager_name']);
+    }
 }

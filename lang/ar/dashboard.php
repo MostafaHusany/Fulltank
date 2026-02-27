@@ -1,9 +1,27 @@
 <?php
 
 return [
-    'Courses_Subscriptipons'    => 'اشتراكات الدورات',
-    'income_by_academic_year'   => 'الدخل بالسنة الدراسية',
-    'students_levels'           => 'مستويات الطلاب',
-    'teachers_in_each_level'    => 'المدرسين في كل مستوى دراسي',
-    'employees_category'        => 'تصنيفات الموظفين',
+    'Title'                    => 'لوحة التحليلات',
+    'Title Administration'     => 'لوحة التحكم',
+
+    'Client Balances'          => 'أرصدة العملاء',
+    'Station Unsettled'        => 'أرصدة المحطات غير المسواة',
+    'Daily Liters'             => 'اللترات اليومية',
+    'Transactions Today'       => 'معاملات اليوم',
+    'Active Stations'          => 'المحطات النشطة',
+    'Active Vehicles'          => 'المركبات النشطة',
+
+    'Weekly Consumption Trend' => 'اتجاه الاستهلاك الأسبوعي',
+    'Fuel Type Distribution'   => 'توزيع أنواع الوقود (آخر 30 يوم)',
+    'Stations Map'             => 'خريطة المحطات',
+
+    'All Governorates'         => 'جميع المحافظات',
+    'Exit Fullscreen'          => 'الخروج من وضع ملء الشاشة',
+    'Liters'                   => 'لترات',
+    'No data available'        => 'لا توجد بيانات متاحة',
+
+    'Manager'                  => 'المدير',
+    'Today'                    => 'اليوم',
+    'transactions'             => 'معاملات',
+    'Amount'                   => 'المبلغ',
 ];

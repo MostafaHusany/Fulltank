@@ -45,7 +45,7 @@ class AdminPermissionsMiddleware
             'users', 'roles', 'clients', 'vehicles', 'drivers', 'cars',
             'depositRequests', 'paymentMethods', 'financialSettings',
             'managers' , 'workshops', 'workshopsOrders', 'districts', 'governorates', 'vehicleQuotas', 'fuelTypes', 'stations',
-            'services', 'wallets', 'walletsCharges', 'transactions', 'carBrands', 'stationWallets', 'stationWorkers', 'fuelTransactions',
+            'services', 'wallets', 'walletsCharges', 'transactions', 'carBrands', 'stationWallets', 'stationWorkers', 'fuelTransactions', 'settlements', 'dashboard', 'reports',
         ];
 
         foreach($permissions as $permission) {

@@ -1,0 +1,66 @@
+<?php
+
+return [
+    'Title'                     => 'Settlements',
+    'Title Administration'      => 'Settlement Management',
+
+    'Stations Balances'         => 'Station Balances',
+    'Settlement History'        => 'Settlement History',
+    'Create Settlement'         => 'Create Settlement',
+    'Confirm Settlement'        => 'Confirm Settlement',
+
+    'Station'                   => 'Station',
+    'Governorate'               => 'Governorate',
+    'District'                  => 'District',
+    'Unsettled Balance'         => 'Unsettled Balance',
+    'Last Settlement'           => 'Last Settlement',
+    'Available Balance'         => 'Available Balance',
+    'Bank Account Details'      => 'Bank Account Details',
+    'Not provided'              => 'Not provided',
+    'Amount'                    => 'Amount',
+    'Payment Method'            => 'Payment Method',
+    'Transaction Details'       => 'Transaction Details',
+    'Receipt Image'             => 'Receipt Image',
+    'Receipt'                   => 'Receipt',
+    'Reference'                 => 'Reference',
+    'Admin'                     => 'Admin',
+    'Date'                      => 'Date',
+    'Date From'                 => 'Date From',
+    'Date To'                   => 'Date To',
+    'Status'                    => 'Status',
+
+    'Station Details'           => 'Station Details',
+    'Name'                      => 'Name',
+    'Manager'                   => 'Manager',
+    'Phone'                     => 'Phone',
+    'Address'                   => 'Address',
+    'Select Station'            => 'Select Station',
+    'Select Payment Method'     => 'Select Payment Method',
+    'All'                       => 'All',
+
+    'method_cash'               => 'Cash',
+    'method_bank_transfer'      => 'Bank Transfer',
+    'method_check'              => 'Check',
+
+    'Active'                    => 'Active',
+    'Inactive'                  => 'Inactive',
+    'Wallet Inactive'           => 'Wallet Inactive',
+    'No Balance'                => 'No Balance',
+    'No Wallet'                 => 'No Wallet',
+    'Loading'                   => 'Loading...',
+    'No stations found'         => 'No stations found',
+    'Error loading stations'    => 'Error loading stations',
+
+    'amount_hint'               => 'Enter the amount to settle (cannot exceed available balance)',
+    'transaction_details_hint'  => 'Bank transfer ID, check number, or other reference...',
+    'receipt_hint'              => 'Upload payment proof (JPEG, PNG, max 5MB)',
+
+    'object_created'            => 'Settlement created successfully',
+    'object_not_found'          => 'Settlement not found',
+    'object_error'              => 'An error occurred, please try again',
+
+    'station_wallet_not_found'  => 'Station wallet not found',
+    'station_wallet_inactive'   => 'Station wallet is inactive',
+    'amount_exceeds_balance'    => 'Settlement amount exceeds available balance',
+    'invalid_amount'            => 'Invalid settlement amount',
+];

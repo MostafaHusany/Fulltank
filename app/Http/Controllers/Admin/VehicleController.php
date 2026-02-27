@@ -198,4 +198,23 @@ class VehicleController extends Controller
 
         return $this->responseTemplate($vehicle, true, __('vehicles.object_deleted'));
     }
+
+    public function dataAjax(Request $request)
+    {
+        $query = Vehicle::query();
+
+        if ($request->filled('q')) {
+            $search = $request->q;
+            $query->where(function ($q) use ($search) {
+                $q->where('plate_number', 'like', "%{$search}%")
+                  ->orWhere('model', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('client_id')) {
+            $query->where('client_id', $request->client_id);
+        }
+
+        return $query->orderBy('plate_number')->limit(30)->get(['id', 'plate_number', 'model', 'client_id']);
+    }
 }
