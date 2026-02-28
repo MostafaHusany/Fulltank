@@ -40,6 +40,7 @@
                             <th>#</th>
                             <th>@lang('fuel_types.Name')</th>
                             <th>@lang('fuel_types.Price')</th>
+                            <th>@lang('fuel_types.Vehicles Count')</th>
                             <th>@lang('layouts.Active')</th>
                             <th>@lang('fuel_types.Last Updated')</th>
                             <th>@lang('layouts.Actions')</th>
@@ -101,12 +102,13 @@
                 imgs_fields     : []
             },
             [
-                { data: 'id',               name: 'id' },
-                { data: 'name',             name: 'name' },
-                { data: 'price_formatted',  name: 'price_formatted' },
-                { data: 'status_toggle',    name: 'status_toggle' },
-                { data: 'last_updated',     name: 'last_updated' },
-                { data: 'actions',          name: 'actions' }
+                { data: 'id',                     name: 'id' },
+                { data: 'name',                   name: 'name' },
+                { data: 'price_formatted',        name: 'price_formatted' },
+                { data: 'vehicles_count_display', name: 'vehicles_count_display', orderable: false },
+                { data: 'status_toggle',          name: 'status_toggle' },
+                { data: 'last_updated',           name: 'last_updated' },
+                { data: 'actions',                name: 'actions' }
             ],
             function (d) {
                 if ($('#s-name').length)

@@ -49,6 +49,8 @@
                         <th>@lang('roles.Name')</th>
                         <th>@lang('roles.Description')</th>
                         <th>@lang('roles.Users')</th>
+                        <th>@lang('roles.Permissions')</th>
+                        <th>@lang('roles.Status')</th>
                         <th>@lang('roles.Actions')</th>
                     </tr>
                 </thead>
@@ -108,8 +110,10 @@
                 { data: 'id',                   name: 'id' },
                 { data: 'display_name',         name: 'display_name' },
                 { data: 'description',          name: 'description' },
-                { data: 'users',                name: 'users' },
-                { data: 'actions',              name: 'actions' },
+                { data: 'users',                name: 'users', 'orderable': false },
+                { data: 'permissions_count',    name: 'permissions_count', 'orderable': false },
+                { data: 'is_protected',         name: 'is_protected', 'orderable': false },
+                { data: 'actions',              name: 'actions', 'orderable': false },
             ],
             function (d) {
                 if ($('#s-name').length)

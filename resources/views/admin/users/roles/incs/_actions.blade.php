@@ -1,5 +1,6 @@
 @php 
-    $is_ar = LaravelLocalization::getCurrentLocale() == 'ar'; 
+    $is_ar = LaravelLocalization::getCurrentLocale() == 'ar';
+    $is_protected = $is_protected ?? false;
 @endphp
 
 <div class="text-center">
@@ -10,7 +11,7 @@
         </button>
         <div class="dropdown-menu {{ !$is_ar ? '!dropdown-menu-right !dropdown-menu-lg-right' : '!dropdown-menu-left !dropdown-menu-lg-left' }}">
 
-            @if($permissions == 'admin' || in_array('users_add', $permissions))
+            @if(!$is_protected && ($permissions == 'admin' || in_array('roles_add', $permissions)))
             <button class="dropdown-item copy-object text-default" data-object-id="{{$row_object->id}}"
                 data-current-card="#objectsCard"    
                 data-target-card="#createObjectCard"  
@@ -42,7 +43,7 @@
             </button>
             @endif
 
-            @if($permissions == 'admin' || in_array('roles_edit', $permissions))
+            @if(!$is_protected && ($permissions == 'admin' || in_array('roles_edit', $permissions)))
             <button class="dropdown-item edit-object text-warning" 
                 data-object-id="{{$row_object->id}}"
                 data-current-card="#objectsCard"    
@@ -59,7 +60,7 @@
             </button>
             @endif
 
-            @if($permissions == 'admin' || in_array('roles_delete', $permissions))
+            @if(!$is_protected && ($permissions == 'admin' || in_array('roles_delete', $permissions)))
             <div class="dropdown-divider"></div>
 
             <button class="dropdown-item delete-object text-danger" 
@@ -74,6 +75,12 @@
                     </div>
                 </div><!-- /.row -->
             </button>
+            @endif
+
+            @if($is_protected)
+            <span class="dropdown-item text-muted">
+                <i class="fas fa-lock me-2"></i>@lang('roles.protected_role')
+            </span>
             @endif
         
         </div>

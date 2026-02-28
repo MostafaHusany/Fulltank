@@ -7,9 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use App\Traits\LogsActivity;
+
 class FuelTransaction extends Model
 {
     use HasFactory;
+    use LogsActivity;
+
+    protected static string $logName = 'fuel_transactions';
 
     protected $fillable = [
         'reference_no',

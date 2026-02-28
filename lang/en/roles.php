@@ -1,7 +1,8 @@
 <?php 
 
 return [
-    'Title Adminstration' => 'Roles Adminstration',
+    'Title Adminstration'  => 'Roles Administration',
+    'Title Administration' => 'Roles Administration',
     
     // Table
     'Roles'                   => 'Roles',
@@ -11,22 +12,22 @@ return [
     'Users'                   => 'Users',
     'Actions'                 => 'Actions',
     'Permissions'             => 'Permissions',
+    'Status'                  => 'Status',
     'Assign_Users'            => 'Assign Users',
     'Create_Role'             => 'Create Role',
-    'Update_Role'             => 'Update_Role',
-    'Select_users'            => 'select users',
+    'Update_Role'             => 'Update Role',
+    'Select_users'            => 'Select users',
     'Select_permissions'      => 'Select permissions',
     
     // Validation
-    'name_is_required'        => 'name is required',
-    'description_is_required' => 'description is required',
+    'name_is_required'        => 'Name is required',
+    'description_is_required' => 'Description is required',
 
     'Show_Role'               => 'Show Role',
     'Assigned_Users'          => 'Assigned Users',
     'Category'                => 'Category',
     'Email'                   => 'Email',
     'Phone'                   => 'Phone',
-    'Update_Role'             => 'Update Role',
 
     // Forms
     'Create Role' => 'Create Role',
@@ -34,9 +35,38 @@ return [
     'Update Role' => 'Update Role', 
 
     // Messages
-    'role_was_created' => 'Role was created',
-    'role not found'   => 'Role not found',
-    'role was deleted' => 'Role was deleted',
-    'role was updated' => 'Role was updated',
-    
+    'role_was_created'      => 'Role was created successfully',
+    'role_not_found'        => 'Role not found',
+    'role not found'        => 'Role not found',
+    'role_was_deleted'      => 'Role was deleted successfully',
+    'role was deleted'      => 'Role was deleted successfully',
+    'role_was_updated'      => 'Role was updated successfully',
+    'role was updated'      => 'Role was updated successfully',
+    'object_error'          => 'Error processing role',
+    'protected_role_error'  => 'This role is protected and cannot be modified or deleted',
+    'protected_role'        => 'Protected Role',
+    'Protected'             => 'Protected',
+    'Editable'              => 'Editable',
+
+    // Module Labels for Permissions Grouping
+    'module_users'            => 'User Management',
+    'module_roles'            => 'Role Management',
+    'module_clients'          => 'Client Management',
+    'module_vehicles'         => 'Vehicle Management',
+    'module_drivers'          => 'Driver Management',
+    'module_stations'         => 'Station Management',
+    'module_station_workers'  => 'Station Workers',
+    'module_station_wallets'  => 'Station Wallets',
+    'module_wallets'          => 'Wallet Management',
+    'module_deposit_requests' => 'Deposit Requests',
+    'module_fuel_transactions'=> 'Fuel Transactions',
+    'module_settlements'      => 'Settlements',
+    'module_fuel_types'       => 'Fuel Types',
+    'module_governorates'     => 'Governorates',
+    'module_districts'        => 'Districts',
+    'module_vehicle_quotas'   => 'Vehicle Quotas',
+    'module_reports'          => 'Reports',
+    'module_activity_logs'    => 'Activity Logs',
+    'module_dashboard'        => 'Dashboard',
+    'module_transactions'     => 'Transactions',
 ];

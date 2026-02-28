@@ -1,11 +1,12 @@
 <?php
 
 return [
-    'Title'         => 'Fuel Types & Pricing',
-    'Name'          => 'Fuel Name',
-    'Price'         => 'Price per Liter',
-    'Status'        => 'Status',
-    'Last Updated'  => 'Last Updated',
+    'Title'          => 'Fuel Types & Pricing',
+    'Name'           => 'Fuel Name',
+    'Price'          => 'Price per Liter',
+    'Vehicles Count' => 'Vehicles Count',
+    'Status'         => 'Status',
+    'Last Updated'   => 'Last Updated',
     'Add'           => 'Add Fuel Type',
     'Edit'          => 'Edit Fuel Type',
     'Description'   => 'Description',

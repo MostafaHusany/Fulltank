@@ -7,9 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
+use App\Traits\LogsActivity;
+
 class Wallet extends Model
 {
     use HasFactory;
+    use LogsActivity;
+
+    protected static string $logName = 'wallets';
 
     protected $fillable = [
         'user_id',
@@ -23,6 +28,22 @@ class Wallet extends Model
         'pendding_balance' => 'decimal:2',
         'is_active'        => 'boolean',
     ];
+
+    /**
+     * Get the available balance (valid balance).
+     */
+    public function getBalanceAttribute(): float
+    {
+        return (float) $this->valide_balance;
+    }
+
+    /**
+     * Get the total balance (valid + pending).
+     */
+    public function getTotalBalanceAttribute(): float
+    {
+        return (float) $this->valide_balance + (float) $this->pendding_balance;
+    }
 
     public function user(): BelongsTo
     {

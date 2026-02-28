@@ -65,6 +65,8 @@ return [
     'station_wallet_not_found'     => 'محفظة المحطة غير موجودة',
     'station_wallet_inactive'      => 'محفظة المحطة غير نشطة',
     'insufficient_balance_or_quota' => 'رصيد أو حصة غير كافية',
+    'insufficient_balance'          => 'رصيد المحفظة غير كافٍ',
+    'quota_exhausted'               => 'تم استنفاد حصة الوقود الشهرية',
     'insufficient_client_balance'  => 'رصيد العميل غير كافٍ',
     'transaction_not_pending'      => 'المعاملة ليست قيد الانتظار',
     'invalid_amount'               => 'مبلغ غير صالح',

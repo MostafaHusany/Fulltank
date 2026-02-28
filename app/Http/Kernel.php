@@ -53,7 +53,8 @@ class Kernel extends HttpKernel
      * @var array<string, class-string|string>
      */
     protected $middlewareAliases = [
-        'admin.permissions' => \App\Http\Middleware\AdminPermissionsMiddleware::class,
+        'admin.permissions'  => \App\Http\Middleware\AdminPermissionsMiddleware::class,
+        'client.permissions' => \App\Http\Middleware\ClientPermissionsMiddleware::class,
         
         'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
@@ -78,6 +79,7 @@ class Kernel extends HttpKernel
 
         'phoneVerified' => \App\Http\Middleware\PhoneVerified::class,
         'apiRole' => \App\Http\Middleware\ApiRoleMiddleware::class,
+        'apiCategory' => \App\Http\Middleware\ApiCategoryMiddleware::class,
 
     ];
 }

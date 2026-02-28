@@ -31,11 +31,20 @@ class FuelTypeController extends Controller
 
         if ($request->ajax()) {
             $model = FuelType::query()
+                ->withCount('vehicles')
                 ->when($request->filled('name'), fn ($q) => $q->where('name', 'like', '%' . $request->name . '%'))
                 ->orderBy('id', 'desc');
             $datatable_model = Datatables::of($model)
                 ->addColumn('price_formatted', function ($row_object) {
                     return number_format((float) $row_object->price_per_liter, 2);
+                })
+                ->addColumn('vehicles_count_display', function ($row_object) {
+                    $count = $row_object->vehicles_count ?? 0;
+                    if ($count > 0) {
+                        $url = route('admin.vehicles.index', ['fuel_type_id' => $row_object->id]);
+                        return '<a href="' . $url . '" class="badge bg-primary text-decoration-none">' . $count . '</a>';
+                    }
+                    return '<span class="text-muted">' . $count . '</span>';
                 })
                 ->addColumn('status_toggle', function ($row_object) use ($permissions) {
                     return view('admin.fuel_types.incs._status_toggle', compact('row_object', 'permissions'));
@@ -46,7 +55,7 @@ class FuelTypeController extends Controller
                 ->addColumn('actions', function ($row_object) use ($permissions) {
                     return view('admin.fuel_types.incs._actions', compact('row_object', 'permissions'));
                 })
-                ->rawColumns(['status_toggle', 'actions']);
+                ->rawColumns(['vehicles_count_display', 'status_toggle', 'actions']);
             return $datatable_model->make(true);
         }
 

@@ -1,8 +1,8 @@
 <?php 
 
 return [
-    'Title Adminstration'       => 'ادارة المستخدمين',
-    'Employees Adminstration'   => 'ادارة الموظفين',
+    'Title Administration'       => 'ادارة المستخدمين',
+    'Employees Administration'   => 'ادارة الموظفين',
 
     // Table
     'Name'                      => 'الاسم',

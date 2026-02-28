@@ -232,6 +232,122 @@ Route::group([
     Route::get('stations-search', [App\Http\Controllers\Admin\StationController::class, 'dataAjax'])->name('admin.search.stations');
     Route::get('vehicles-search', [App\Http\Controllers\Admin\VehicleController::class, 'dataAjax'])->name('admin.search.vehicles');
 
+    Route::get('activity-logs', [App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activityLogs.index');
+    Route::get('activity-logs/stats', [App\Http\Controllers\Admin\ActivityLogController::class, 'stats'])->name('admin.activityLogs.stats');
+    Route::get('activity-logs/{id}', [App\Http\Controllers\Admin\ActivityLogController::class, 'show'])->name('admin.activityLogs.show');
+
+    // API Tester (Super Admin Only)
+    Route::get('api-tester', [App\Http\Controllers\Admin\ApiTesterController::class, 'index'])->name('admin.apiTester.index');
+    Route::get('api-tester/drivers', [App\Http\Controllers\Admin\ApiTesterController::class, 'getDrivers'])->name('admin.apiTester.drivers');
+    Route::get('api-tester/workers', [App\Http\Controllers\Admin\ApiTesterController::class, 'getWorkers'])->name('admin.apiTester.workers');
+    Route::get('api-tester/vehicles', [App\Http\Controllers\Admin\ApiTesterController::class, 'getVehicles'])->name('admin.apiTester.vehicles');
+    Route::get('api-tester/stations', [App\Http\Controllers\Admin\ApiTesterController::class, 'getStations'])->name('admin.apiTester.stations');
+    Route::get('api-tester/fuel-types', [App\Http\Controllers\Admin\ApiTesterController::class, 'getFuelTypes'])->name('admin.apiTester.fuelTypes');
+    Route::post('api-tester/quick-login', [App\Http\Controllers\Admin\ApiTesterController::class, 'quickLogin'])->name('admin.apiTester.quickLogin');
+
+    // API Simulator (Full Cycle Test)
+    Route::get('api-simulator', [App\Http\Controllers\Admin\ApiSimulatorController::class, 'index'])->name('admin.apiSimulator.index');
+    Route::post('api-simulator/run', [App\Http\Controllers\Admin\ApiSimulatorController::class, 'runAutoTest'])->name('admin.apiSimulator.run');
+
+});
+
+Route::group([
+    'middleware' => ['auth:web', 'client.permissions'],
+    'namespace'  => 'App\Http\Controllers\Client',
+    'prefix'     => LaravelLocalization::setLocale() . '/client',
+    'as'         => 'client.'
+], function () {
+
+    Route::get('/', [App\Http\Controllers\Client\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\Client\DashboardController::class, 'index'])->name('dashboard.index');
+    Route::get('/dashboard/stats', [App\Http\Controllers\Client\DashboardController::class, 'getStats'])->name('dashboard.stats');
+
+    Route::get('/profile', [App\Http\Controllers\Client\ProfileController::class, 'index'])->name('profile.index');
+    Route::post('/profile', [App\Http\Controllers\Client\ProfileController::class, 'update'])->name('profile.update');
+
+    Route::get('/vehicles', [App\Http\Controllers\Client\VehicleController::class, 'index'])->name('vehicles.index');
+    Route::post('/vehicles', [App\Http\Controllers\Client\VehicleController::class, 'store'])->name('vehicles.store');
+    Route::get('/vehicles/{id}', [App\Http\Controllers\Client\VehicleController::class, 'show'])->name('vehicles.show');
+    Route::put('/vehicles/{id}', [App\Http\Controllers\Client\VehicleController::class, 'update'])->name('vehicles.update');
+    Route::delete('/vehicles/{id}', [App\Http\Controllers\Client\VehicleController::class, 'destroy'])->name('vehicles.destroy');
+
+    Route::get('/drivers', [App\Http\Controllers\Client\DriverController::class, 'index'])->name('drivers.index');
+    Route::post('/drivers', [App\Http\Controllers\Client\DriverController::class, 'store'])->name('drivers.store');
+    Route::get('/drivers/{id}', [App\Http\Controllers\Client\DriverController::class, 'show'])->name('drivers.show');
+    Route::put('/drivers/{id}', [App\Http\Controllers\Client\DriverController::class, 'update'])->name('drivers.update');
+    Route::delete('/drivers/{id}', [App\Http\Controllers\Client\DriverController::class, 'destroy'])->name('drivers.destroy');
+
+    Route::get('/wallet', [App\Http\Controllers\Client\WalletController::class, 'index'])->name('wallet.index');
+    Route::get('/wallet/transactions', [App\Http\Controllers\Client\WalletController::class, 'transactions'])->name('wallet.transactions');
+    Route::get('/wallet/fuel-transactions', [App\Http\Controllers\Client\WalletController::class, 'fuelTransactions'])->name('wallet.fuelTransactions');
+    Route::get('/wallet/export', [App\Http\Controllers\Client\WalletController::class, 'exportFuelTransactions'])->name('wallet.export');
+    Route::get('/wallet/chart-data', [App\Http\Controllers\Client\WalletController::class, 'chartData'])->name('wallet.chartData');
+
+    Route::get('/transactions', [App\Http\Controllers\Client\TransactionController::class, 'index'])->name('transactions.index');
+    Route::get('/transactions/{id}', [App\Http\Controllers\Client\TransactionController::class, 'show'])->name('transactions.show');
+
+    Route::get('/reports', [App\Http\Controllers\Client\ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/vehicle-consumption', [App\Http\Controllers\Client\ReportController::class, 'vehicleConsumption'])->name('reports.vehicleConsumption');
+    Route::get('/reports/driver-activity', [App\Http\Controllers\Client\ReportController::class, 'driverActivity'])->name('reports.driverActivity');
+    Route::get('/reports/statement', [App\Http\Controllers\Client\ReportController::class, 'statement'])->name('reports.statement');
+
+    Route::get('/quotas', [App\Http\Controllers\Client\VehicleQuotaController::class, 'index'])->name('quotas.index');
+    Route::get('/quotas/vehicles', [App\Http\Controllers\Client\VehicleQuotaController::class, 'vehicles'])->name('quotas.vehicles');
+    Route::post('/quotas/bulk', [App\Http\Controllers\Client\VehicleQuotaController::class, 'bulkAllocate'])->name('quotas.bulk');
+    Route::put('/quotas/{id}', [App\Http\Controllers\Client\VehicleQuotaController::class, 'update'])->name('quotas.update');
+
+    Route::get('/live-monitor', [App\Http\Controllers\Client\LiveMonitorController::class, 'index'])->name('live_monitor.index');
+    Route::get('/live-monitor/transactions', [App\Http\Controllers\Client\LiveMonitorController::class, 'transactions'])->name('live_monitor.transactions');
+    Route::get('/live-monitor/proof/{id}', [App\Http\Controllers\Client\LiveMonitorController::class, 'viewProof'])->name('live_monitor.proof');
+    Route::get('/live-monitor/image/{id}', [App\Http\Controllers\Client\LiveMonitorController::class, 'meterImage'])->name('live_monitor.image');
+
+    Route::get('/deposits', [App\Http\Controllers\Client\DepositController::class, 'index'])->name('deposits.index');
+    Route::post('/deposits', [App\Http\Controllers\Client\DepositController::class, 'store'])->name('deposits.store');
+    Route::get('/deposits/calculate-fee', [App\Http\Controllers\Client\DepositController::class, 'calculateFee'])->name('deposits.calculateFee');
+    Route::get('/deposits/{id}', [App\Http\Controllers\Client\DepositController::class, 'show'])->name('deposits.show');
+    Route::get('/deposits/{id}/proof', [App\Http\Controllers\Client\DepositController::class, 'viewProof'])->name('deposits.proof');
+    Route::post('/deposits/{id}/cancel', [App\Http\Controllers\Client\DepositController::class, 'cancel'])->name('deposits.cancel');
+
+    Route::get('/notifications', [App\Http\Controllers\Client\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/latest', [App\Http\Controllers\Client\NotificationController::class, 'getLatest'])->name('notifications.latest');
+    Route::get('/notifications/new', [App\Http\Controllers\Client\NotificationController::class, 'getNewNotifications'])->name('notifications.new');
+    Route::post('/notifications/mark-all-read', [App\Http\Controllers\Client\NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
+    Route::post('/notifications/{id}/read', [App\Http\Controllers\Client\NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    Route::delete('/notifications/{id}', [App\Http\Controllers\Client\NotificationController::class, 'destroy'])->name('notifications.destroy');
+});
+
+Route::group([
+    'middleware' => ['auth:web'],
+    'namespace'  => 'App\Http\Controllers\Station',
+    'prefix'     => LaravelLocalization::setLocale() . '/station',
+    'as'         => 'station.'
+], function () {
+
+    Route::get('/', [App\Http\Controllers\Station\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\Station\DashboardController::class, 'index'])->name('dashboard.index');
+    Route::get('/dashboard/analytics', [App\Http\Controllers\Station\DashboardController::class, 'analyticsData'])->name('dashboard.analytics');
+
+    Route::get('/workers', [App\Http\Controllers\Station\WorkerController::class, 'index'])->name('workers.index');
+    Route::post('/workers', [App\Http\Controllers\Station\WorkerController::class, 'store'])->name('workers.store');
+    Route::get('/workers/{id}', [App\Http\Controllers\Station\WorkerController::class, 'show'])->name('workers.show');
+    Route::put('/workers/{id}', [App\Http\Controllers\Station\WorkerController::class, 'update'])->name('workers.update');
+    Route::delete('/workers/{id}', [App\Http\Controllers\Station\WorkerController::class, 'destroy'])->name('workers.destroy');
+    Route::post('/workers/{id}/toggle', [App\Http\Controllers\Station\WorkerController::class, 'toggleStatus'])->name('workers.toggle');
+
+    // Transactions
+    Route::get('/transactions', [App\Http\Controllers\Station\TransactionController::class, 'index'])->name('transactions.index');
+    Route::get('/transactions/data', [App\Http\Controllers\Station\TransactionController::class, 'data'])->name('transactions.data');
+    Route::get('/transactions/export', [App\Http\Controllers\Station\TransactionController::class, 'export'])->name('transactions.export');
+    Route::get('/transactions/{id}/proof', [App\Http\Controllers\Station\TransactionController::class, 'viewProof'])->name('transactions.proof');
+    Route::get('/transactions/{id}/image', [App\Http\Controllers\Station\TransactionController::class, 'meterImage'])->name('transactions.image');
+
+    // Financials
+    Route::get('/financials', [App\Http\Controllers\Station\FinancialController::class, 'index'])->name('financials.index');
+    Route::get('/financials/settlements', [App\Http\Controllers\Station\FinancialController::class, 'settlements'])->name('financials.settlements');
+    Route::get('/financials/transactions', [App\Http\Controllers\Station\FinancialController::class, 'transactions'])->name('financials.transactions');
+    Route::get('/financials/receipt/{id}', [App\Http\Controllers\Station\FinancialController::class, 'viewReceipt'])->name('financials.receipt');
+    Route::get('/financials/receipt-image/{id}', [App\Http\Controllers\Station\FinancialController::class, 'receiptImage'])->name('financials.receipt_image');
+
 });
 
 

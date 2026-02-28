@@ -17,8 +17,17 @@ use App\Models\Transaction;
 use App\Models\VehicleQuota;
 use App\Models\FuelTransaction;
 
+use App\Services\NotificationService;
+
 class FuelTransactionService
 {
+    protected NotificationService $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     public function generateQrToken(): string
     {
         return Str::uuid()->toString();
@@ -53,6 +62,23 @@ class FuelTransactionService
             $maxAllowed = min($maxByQuota, $maxByWallet);
 
             if ($maxAllowed <= 0) {
+                $client = $vehicle->client;
+                $driver = isset($data['driver_id']) ? User::find($data['driver_id']) : null;
+                
+                $reason = $walletBalance <= 0 
+                    ? __('fuel_transactions.insufficient_balance')
+                    : __('fuel_transactions.quota_exhausted');
+
+                if ($client) {
+                    $this->notificationService->notifyDeniedFueling(
+                        $client,
+                        $reason,
+                        $vehicle->plate_number,
+                        $driver?->name,
+                        $station->name
+                    );
+                }
+
                 throw new Exception(__('fuel_transactions.insufficient_balance_or_quota'));
             }
 
@@ -169,8 +195,27 @@ class FuelTransactionService
                 'completed_at'  => now(),
             ]);
 
-            return $transaction->fresh(['client', 'vehicle', 'station', 'worker', 'fuelType']);
+            $freshTransaction = $transaction->fresh(['client', 'vehicle', 'station', 'worker', 'fuelType']);
+
+            $this->sendPostTransactionNotifications(
+                $freshTransaction->client,
+                $freshTransaction->vehicle,
+                $clientWallet->valide_balance
+            );
+
+            return $freshTransaction;
         });
+    }
+
+    protected function sendPostTransactionNotifications(
+        User $client,
+        Vehicle $vehicle,
+        float $newBalance
+    ): void {
+        $this->notificationService->checkAndNotifyLowBalance($client, $newBalance);
+
+        $vehicle->load('activeQuota');
+        $this->notificationService->checkAndNotifyQuotaWarning($vehicle);
     }
 
     public function refundTransaction(FuelTransaction $transaction, string $reason, int $adminId): FuelTransaction
@@ -332,7 +377,15 @@ class FuelTransactionService
                 'completed_at'       => now(),
             ]);
 
-            return $transaction->load(['client', 'vehicle', 'station', 'admin', 'fuelType']);
+            $freshTransaction = $transaction->load(['client', 'vehicle', 'station', 'admin', 'fuelType']);
+
+            $this->sendPostTransactionNotifications(
+                $freshTransaction->client,
+                $freshTransaction->vehicle,
+                $clientWallet->valide_balance
+            );
+
+            return $freshTransaction;
         });
     }
 

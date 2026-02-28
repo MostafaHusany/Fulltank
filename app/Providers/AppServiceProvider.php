@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use App\Services\Station\BalanceService;
 
 // use App\Models\WorkshopOrder;
 // use App\Observers\WorkshopOrderObserver;
@@ -29,6 +30,20 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        View::composer('layouts.station.*', function ($view) {
+            $stationBalance = null;
+            
+            if (auth()->check()) {
+                $user = auth()->user();
+                if ($user->category === 'station_manager' || $user->managedStation) {
+                    $balanceService = app(BalanceService::class);
+                    $stationId = $balanceService->getStationIdForUser($user);
+                    $stationBalance = $balanceService->getStationBalance($stationId);
+                }
+            }
+            
+            $view->with('stationBalance', $stationBalance);
+        });
         // Notification::observe(NotificationObserver::class);
 
         $gardianClassifications = [

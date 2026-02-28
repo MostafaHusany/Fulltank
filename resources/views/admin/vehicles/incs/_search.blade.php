@@ -15,13 +15,11 @@
     </div>
     <div class="col-12 col-sm-6 col-md-4 col-lg-2 search-action">
         <label class="form-label small mb-1">@lang('vehicles.Fuel Type')</label>
-        <select class="form-select form-control form-select-sm" id="s-fuel_type">
+        <select class="form-select form-control form-select-sm" id="s-fuel_type_id">
             <option value="">@lang('layouts.all')</option>
-            <option value="petrol">@lang('vehicles.Petrol')</option>
-            <option value="diesel">@lang('vehicles.Diesel')</option>
-            <option value="electric">@lang('vehicles.Electric')</option>
-            <option value="hybrid">@lang('vehicles.Hybrid')</option>
-            <option value="cng">@lang('vehicles.CNG')</option>
+            @foreach($fuelTypes ?? [] as $fuelType)
+                <option value="{{ $fuelType->id }}">{{ $fuelType->name }}</option>
+            @endforeach
         </select>
     </div>
     <div class="col-12 col-sm-6 col-md-4 col-lg-2 search-action">

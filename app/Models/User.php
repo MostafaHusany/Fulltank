@@ -13,16 +13,15 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laratrust\Contracts\LaratrustUser;
 use Laratrust\Traits\HasRolesAndPermissions;
 
-// use Spatie\Image\Manipulations;
-// use Spatie\MediaLibrary\HasMedia;
-// use Spatie\MediaLibrary\InteractsWithMedia;
-// use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use App\Traits\LogsActivity;
 
 class User extends Authenticatable implements LaratrustUser
 {
     use HasRolesAndPermissions;
-
     use HasApiTokens, HasFactory, Notifiable;
+    use LogsActivity;
+
+    protected static string $logName = 'users';
 
     /**
      * The attributes that are mass assignable.
@@ -96,6 +95,16 @@ class User extends Authenticatable implements LaratrustUser
     public function vehicle()
     {
         return $this->belongsTo(Vehicle::class, 'vehicle_id');
+    }
+
+    public function managedStation()
+    {
+        return $this->hasOne(Station::class, 'user_id');
+    }
+
+    public function stationWorker()
+    {
+        return $this->hasOne(\App\Models\StationWorker::class, 'user_id');
     }
 
     public function employee () {

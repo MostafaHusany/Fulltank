@@ -7,9 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+use App\Traits\LogsActivity;
+
 class Station extends Model
 {
     use HasFactory;
+    use LogsActivity;
+
+    protected static string $logName = 'stations';
 
     protected $fillable = [
         'name', 'governorate_id', 'district_id', 'address', 'lat', 'lng',

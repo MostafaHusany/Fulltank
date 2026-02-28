@@ -89,19 +89,13 @@
             plate_required    : '@lang("vehicles.plate_number_required")',
             model_required    : '@lang("vehicles.model_required")',
             fuel_required     : '@lang("vehicles.fuel_type_required")',
-            petrol            : '@lang("vehicles.Petrol")',
-            diesel            : '@lang("vehicles.Diesel")',
-            electric          : '@lang("vehicles.Electric")',
-            hybrid            : '@lang("vehicles.Hybrid")',
-            cng               : '@lang("vehicles.CNG")',
             active            : '@lang("layouts.active")',
             inactive          : '@lang("layouts.de-active")',
             historyPlaceholder: '{{ __("vehicles.History Placeholder") }}',
             selectClient      : '{{ __("vehicles.Select Client") }}'
         };
 
-        const FUEL_MAP = { petrol: LANG.petrol, diesel: LANG.diesel, electric: LANG.electric, hybrid: LANG.hybrid, cng: LANG.cng };
-        const VALIDATION = { client_id: LANG.client_required, plate_number: LANG.plate_required, model: LANG.model_required, fuel_type: LANG.fuel_required };
+        const VALIDATION = { client_id: LANG.client_required, plate_number: LANG.plate_required, model: LANG.model_required, fuel_type_id: LANG.fuel_required };
 
         $('document').ready(function () {
 
@@ -126,7 +120,7 @@
                     create_obj_btn  : '.create-object',
                     update_obj_btn  : '.update-object',
                     draft_obj_btn   : '.create-draft',
-                    fields_list     : ['id', 'client_id', 'plate_number', 'model', 'fuel_type'],
+                    fields_list     : ['id', 'client_id', 'plate_number', 'model', 'fuel_type_id'],
                     imgs_fields     : []
                 },
                 [
@@ -135,7 +129,7 @@
                     { data: 'formatted_plate',    name: 'formatted_plate' },
                     { data: 'client_name',        name: 'client_name' },
                     { data: 'model',              name: 'model' },
-                    { data: 'fuel_type',          name: 'fuel_type' },
+                    { data: 'fuel_type_name',     name: 'fuel_type_name' },
                     { data: 'activation',         name: 'activation' },
                     { data: 'actions',            name: 'actions' },
                 ],
@@ -144,7 +138,7 @@
                     else if ($('#s-client_id').length) d.client_id = $('#s-client_id').val();
                     if ($('#s-plate_number').length) d.plate_number = $('#s-plate_number').val();
                     if ($('#s-model').length) d.model = $('#s-model').val();
-                    if ($('#s-fuel_type').length) d.fuel_type = $('#s-fuel_type').val();
+                    if ($('#s-fuel_type_id').length) d.fuel_type_id = $('#s-fuel_type_id').val();
                     if ($('#s-status').length) d.status = $('#s-status').val();
                 }
             );
@@ -172,7 +166,7 @@
                     $('#show-plate_number').text(data.formatted_plate_number || '---');
                     $('#show-client_name').text(data.client_name || '---');
                     $('#show-model').text(data.model || '---');
-                    $('#show-fuel_type').text(data.fuel_type ? (FUEL_MAP[data.fuel_type] || data.fuel_type) : '---');
+                    $('#show-fuel_type').text(data.fuel_type_name || '---');
                     $('#show-status').html(data.status === 'active' ? `<span class="badge bg-success">${LANG.active}</span>` : `<span class="badge bg-warning">${LANG.inactive}</span>`);
                     return true;
                 } catch (err) {

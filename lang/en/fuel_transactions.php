@@ -65,6 +65,8 @@ return [
     'station_wallet_not_found'     => 'Station wallet not found',
     'station_wallet_inactive'      => 'Station wallet is inactive',
     'insufficient_balance_or_quota' => 'Insufficient balance or quota',
+    'insufficient_balance'          => 'Insufficient wallet balance',
+    'quota_exhausted'               => 'Monthly fuel quota exhausted',
     'insufficient_client_balance'  => 'Insufficient client balance',
     'transaction_not_pending'      => 'Transaction is not pending',
     'invalid_amount'               => 'Invalid amount',

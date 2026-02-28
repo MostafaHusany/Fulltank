@@ -5,16 +5,6 @@ use App\Enums\TokenAbility;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\SharedApi\OptionController;
-use App\Http\Controllers\SharedApi\WalletController;
-use App\Http\Controllers\SharedApi\NotificationController;
-
-use App\Http\Controllers\StudentApi\AuthController;
-use App\Http\Controllers\StudentApi\CourseController;
-use App\Http\Controllers\StudentApi\GenericController;
-
-// use App\Http\Controllers\Api\Trucker\TruckerController;
-// use App\Http\Controllers\Api\Client\TruckingOrderControler;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,73 +18,56 @@ use App\Http\Controllers\StudentApi\GenericController;
 */
 
 
-Route::prefix('v1')->group(function () {
-    Route::get('home',          [GenericController::class, 'getHomePage']);
-    Route::get('top-students',  [GenericController::class, 'getTopStudents']);
+/*
+|--------------------------------------------------------------------------
+| Mobile App API Routes (Workers & Drivers)
+|--------------------------------------------------------------------------
+*/
 
-    Route::get('districts',     [GenericController::class, 'getDistricts']);
+Route::prefix('mobile')->group(function () {
 
-    Route::get('grades',        [GenericController::class, 'getGrades']);
-    Route::get('grades/{id}',   [GenericController::class, 'showGrade']);
-    
-    Route::get('courses',       [GenericController::class, 'getCourses']);
-    Route::get('courses/{id}',  [GenericController::class, 'showCourse']);
-    Route::get('categories',    [GenericController::class, 'getCoursesCategories']);    
-});
+    // Public: Authentication
+    Route::post('login', [App\Http\Controllers\Api\AuthController::class, 'login']);
 
+    // Protected Routes
+    Route::middleware(['auth:sanctum'])->group(function () {
 
-Route::prefix('v1/subscripe')
-->middleware(['auth:sanctum', 'tokenAbility:'.TokenAbility::ACCESS_API->value])
-->group(function () {
+        // Common Auth Routes
+        Route::post('logout', [App\Http\Controllers\Api\AuthController::class, 'logout']);
+        Route::get('profile', [App\Http\Controllers\Api\AuthController::class, 'profile']);
+        Route::get('profile/refresh', [App\Http\Controllers\Api\AuthController::class, 'refreshProfile']);
 
-    Route::get('course',    [CourseController::class, 'showCourse']);
-    Route::get('lession',   [CourseController::class, 'showLession']);
-    
-    Route::post('course',   [CourseController::class, 'subscripe']);
-});
+        // Driver-specific routes
+        Route::prefix('driver')->middleware(['apiCategory:driver'])->group(function () {
+            Route::get('dashboard', [App\Http\Controllers\Api\Driver\DriverController::class, 'dashboard']);
 
+            // Fuel Requests
+            Route::post('request', [App\Http\Controllers\Api\Driver\FuelRequestController::class, 'store']);
+            Route::get('request/active', [App\Http\Controllers\Api\Driver\FuelRequestController::class, 'active']);
+            Route::post('request/{id}/cancel', [App\Http\Controllers\Api\Driver\FuelRequestController::class, 'cancel']);
+            Route::get('request/history', [App\Http\Controllers\Api\Driver\FuelRequestController::class, 'history']);
 
-Route::prefix('v1/course')
-->middleware(['auth:sanctum', 'tokenAbility:'.TokenAbility::ACCESS_API->value])
-->group(function () {
-
-    Route::get('/{id}',           [CourseController::class, 'showCourse']);
-    Route::get('lession/{id}',    [CourseController::class, 'showLession']);
-    
-    Route::post('subscripe/{id}', [CourseController::class, 'subscripe']);
-});
-
-
-Route::prefix('v1/auth')->group(function () {
-    
-    Route::post('signup',      [AuthController::class, 'signup']);
-    Route::post('signin',      [AuthController::class, 'signin']);
-
-    Route::get('profile',      [AuthController::class, 'getProfile'])->middleware(['auth:sanctum', 'tokenAbility:'.TokenAbility::ACCESS_API->value]);
-    Route::put('profile',      [AuthController::class, 'updateProfile'])->middleware(['auth:sanctum', 'tokenAbility:'.TokenAbility::ACCESS_API->value]);
-
-});
-
-
-Route::prefix('v1')->group(function () {
-    Route::prefix('selectors')->group(function () {
-        Route::get('goves', [OptionController::class, 'goves']);
-        Route::get('car-brands-models', [OptionController::class, 'getCarBrandsModels']);
-        Route::get('services', [OptionController::class, 'availableServices']);
-    });
-
-    Route::middleware(['auth:sanctum', 'tokenAbility:'.TokenAbility::ACCESS_API->value])->group(function () {
-        
-        Route::apiResource('notifications', NotificationController::class);
-        
-        Route::prefix('wallet')->group(function () {
-            Route::get('/', [WalletController::class, 'index']);
-            Route::get('charges', [WalletController::class, 'charges']);
+            // Nearby Stations
+            Route::get('nearby-stations', [App\Http\Controllers\Api\Driver\StationController::class, 'nearbyStations']);
+            Route::get('stations/{id}', [App\Http\Controllers\Api\Driver\StationController::class, 'show']);
+            Route::get('fuel-types', [App\Http\Controllers\Api\Driver\StationController::class, 'fuelTypes']);
         });
 
-        Route::get('transactions', [WalletController::class, 'transactions']);
-    });
-});
+        // Worker-specific routes
+        Route::prefix('worker')->middleware(['apiCategory:worker'])->group(function () {
+            Route::get('dashboard', [App\Http\Controllers\Api\Worker\WorkerController::class, 'dashboard']);
 
-Route::post('/moyasar/transaction-status', [App\Http\Controllers\MoyasarController::class, 'transactionWebHock'])->name('moyasar.hock');
+            // Transaction Verification & Execution
+            Route::post('verify-request', [App\Http\Controllers\Api\Worker\TransactionController::class, 'verify']);
+            Route::post('confirm-fueling', [App\Http\Controllers\Api\Worker\TransactionController::class, 'confirm']);
+            Route::post('upload-proof', [App\Http\Controllers\Api\Worker\TransactionController::class, 'uploadProof']);
+
+            // Stats & History
+            Route::get('today-stats', [App\Http\Controllers\Api\Worker\TransactionController::class, 'todayStats']);
+            Route::get('recent-transactions', [App\Http\Controllers\Api\Worker\TransactionController::class, 'recentTransactions']);
+        });
+
+    });
+
+});
 

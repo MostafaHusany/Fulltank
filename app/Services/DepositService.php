@@ -12,7 +12,8 @@ use App\Models\Wallet;
 class DepositService
 {
     public function __construct(
-        protected WalletService $walletService
+        protected WalletService $walletService,
+        protected NotificationService $notificationService
     ) {}
 
     /**
@@ -59,7 +60,7 @@ class DepositService
      */
     public function setStatus(int $requestId, string $status): DepositRequest
     {
-        $request = DepositRequest::findOrFail($requestId);
+        $request = DepositRequest::with('client')->findOrFail($requestId);
         if (!in_array($status, ['approved', 'rejected'])) {
             throw new Exception(__('deposit_requests.invalid_status'));
         }
@@ -69,6 +70,13 @@ class DepositService
         $request->reviewed_by = $userId;
         $request->action_date = now();
         $request->save();
+
+        if ($status === 'approved') {
+            $this->notificationService->notifyDepositApproved($request);
+        } elseif ($status === 'rejected') {
+            $this->notificationService->notifyDepositRejected($request);
+        }
+
         return $request;
     }
 

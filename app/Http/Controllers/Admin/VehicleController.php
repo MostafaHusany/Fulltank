@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 
 use App\Models\Vehicle;
 use App\Models\User;
+use App\Models\FuelType;
 
 use App\Http\Traits\ResponseTemplate;
 
@@ -35,7 +36,7 @@ class VehicleController extends Controller
 
         if ($request->ajax()) {
             $model = $this->targetModel->query()
-                ->with('client:id,name,company_name')
+                ->with(['client:id,name,company_name', 'fuelType:id,name'])
                 ->when($request->filled('client_id'), function ($q) use ($request) {
                     $q->where('client_id', $request->client_id);
                 })
@@ -52,6 +53,9 @@ class VehicleController extends Controller
                 ->addColumn('formatted_plate', function ($row_object) {
                     return e($row_object->formatted_plate_number);
                 })
+                ->addColumn('fuel_type_name', function ($row_object) {
+                    return $row_object->fuelType ? e($row_object->fuelType->name) : '---';
+                })
                 ->addColumn('activation', function ($row_object) use ($permissions) {
                     return view('admin.vehicles.incs._active', compact('row_object', 'permissions'));
                 })
@@ -64,8 +68,9 @@ class VehicleController extends Controller
 
         $filterClientId   = $request->get('client_id');
         $filterClientName = $request->get('client_name');
+        $fuelTypes        = FuelType::where('is_active', true)->orderBy('name')->get(['id', 'name']);
 
-        return view('admin.vehicles.index', compact('permissions', 'filterClientId', 'filterClientName'));
+        return view('admin.vehicles.index', compact('permissions', 'filterClientId', 'filterClientName', 'fuelTypes'));
     }
 
     public function store(Request $request)
@@ -74,7 +79,7 @@ class VehicleController extends Controller
             'client_id'    => 'required|exists:users,id',
             'plate_number' => 'required|string|max:50|unique:vehicles,plate_number',
             'model'        => 'required|string|max:255',
-            'fuel_type'    => 'required|in:petrol,diesel,electric,hybrid,cng',
+            'fuel_type_id' => 'required|exists:fuel_types,id',
             'status'       => 'nullable|in:active,inactive',
         ]);
 
@@ -82,7 +87,7 @@ class VehicleController extends Controller
             return $this->responseTemplate(null, false, $validator->errors());
         }
 
-        $data = $request->only(['client_id', 'plate_number', 'model', 'fuel_type']);
+        $data = $request->only(['client_id', 'plate_number', 'model', 'fuel_type_id']);
         $data['status'] = $request->input('status', 'active');
 
         try {
@@ -103,7 +108,7 @@ class VehicleController extends Controller
     public function show($id)
     {
         $vehicle = $this->targetModel->query()
-            ->with('client:id,name,company_name,email,phone')
+            ->with(['client:id,name,company_name,email,phone', 'fuelType:id,name'])
             ->find($id);
 
         if (!isset($vehicle)) {
@@ -113,6 +118,7 @@ class VehicleController extends Controller
         $data = $vehicle->toArray();
         $data['formatted_plate_number'] = $vehicle->formatted_plate_number;
         $data['client_name'] = $vehicle->client ? ($vehicle->client->company_name ?: $vehicle->client->name) : '---';
+        $data['fuel_type_name'] = $vehicle->fuelType ? $vehicle->fuelType->name : '---';
         return $this->responseTemplate($data, true, null);
     }
 
@@ -142,7 +148,7 @@ class VehicleController extends Controller
             'client_id'    => 'required|exists:users,id',
             'plate_number' => 'required|string|max:50|unique:vehicles,plate_number,' . $vehicle->id,
             'model'        => 'required|string|max:255',
-            'fuel_type'    => 'required|in:petrol,diesel,electric,hybrid,cng',
+            'fuel_type_id' => 'required|exists:fuel_types,id',
             'status'       => 'nullable|in:active,inactive',
         ]);
 
@@ -150,7 +156,7 @@ class VehicleController extends Controller
             return $this->responseTemplate(null, false, $validator->errors());
         }
 
-        $data = $request->only(['client_id', 'plate_number', 'model', 'fuel_type']);
+        $data = $request->only(['client_id', 'plate_number', 'model', 'fuel_type_id']);
         if ($request->has('status')) {
             $data['status'] = $request->input('status');
         }

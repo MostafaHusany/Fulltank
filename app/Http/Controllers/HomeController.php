@@ -32,21 +32,31 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-        if (in_array(auth()->user()->category, ['admin', 'technical'])) {
-            return auth()->user()->category == 'admin' || auth()->user()->isAbleTo('dashboard') ?
-                redirect()->route('admin.dashboard.index') :
-                redirect()->route('admin.profile.index');
+        $user = auth()->user();
+        $category = $user->category;
+
+        if (in_array($category, ['admin', 'technical'])) {
+            return $category === 'admin' || $user->isAbleTo('dashboard')
+                ? redirect()->route('admin.dashboard.index')
+                : redirect()->route('admin.profile.index');
         }
 
-        if (in_array(auth()->user()->category, ['student'])) {
-            return redirect()->route('student.profile.index');
+        if ($category === 'client') {
+            return redirect()->route('client.dashboard');
         }
-        
-        if (auth()->user()->category == 'employee') {
-            $employee = auth()->user()->employee;
 
-            if ($employee->category == 'teacher')
-            return redirect()->route('teacher.profile.index');
+        if ($category === 'station_manager') {
+            return redirect()->route('station.dashboard');
         }
+
+        if ($category === 'worker') {
+            return redirect()->route('worker.dashboard');
+        }
+
+        if ($category === 'driver') {
+            return redirect()->route('driver.dashboard');
+        }
+
+        return redirect()->route('login');
     }
 }

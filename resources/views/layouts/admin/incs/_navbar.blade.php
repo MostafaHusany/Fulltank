@@ -2,17 +2,33 @@
     <div class="position-sticky pt-3 sidebar-sticky">
         @php
             $user = auth()->user();
-            $isAdmin = $user->category == 'admin';
+            $isAdmin = $user->category == 'admin' || $user->hasRole('admin');
             $path = Request::path();
 
+            /**
+             * OR Logic for Permission Check
+             * A nav link is visible if the user has ANY permission for that module
+             * Checks: {module}_show, {module}_add, {module}_edit, {module}_delete
+             */
             $canAccess = function ($permission) use ($user, $isAdmin) {
+                if ($isAdmin) return true;
+
+                $checkModuleAccess = function ($module) use ($user) {
+                    return $user->isAbleTo($module . '_show') || 
+                           $user->isAbleTo($module . '_add') || 
+                           $user->isAbleTo($module . '_edit') || 
+                           $user->isAbleTo($module . '_delete') ||
+                           $user->isAbleTo($module . '_*');
+                };
+
                 if (is_array($permission)) {
                     foreach ($permission as $perm) {
-                        if ($isAdmin || $user->isAbleTo($perm . '_*')) return true;
+                        if ($checkModuleAccess($perm)) return true;
                     }
                     return false;
                 }
-                return $isAdmin || $user->isAbleTo($permission . '_*');
+
+                return $checkModuleAccess($permission);
             };
 
             $isActive = function ($segment, $exclude = null) use ($path) {
@@ -185,6 +201,33 @@
                             'icon'       => 'fa-gas-pump',
                             'label'      => 'fuel_types.Title',
                             'segment'    => '/fuel-types',
+                        ],
+                        [
+                            'permission' => 'activityLogs',
+                            'route'      => 'admin.activityLogs.index',
+                            'icon'       => 'fa-history',
+                            'label'      => 'activity_logs.Title',
+                            'segment'    => '/activity-logs',
+                        ],
+                    ],
+                ],
+                [
+                    'key'   => 'developer',
+                    'title' => 'layouts.Developer_Tools',
+                    'items' => [
+                        [
+                            'permission' => 'apiTester',
+                            'route'      => 'admin.apiTester.index',
+                            'icon'       => 'fa-flask',
+                            'label'      => 'layouts.API_Test_Lab',
+                            'segment'    => '/api-tester',
+                        ],
+                        [
+                            'permission' => 'apiTester',
+                            'route'      => 'admin.apiSimulator.index',
+                            'icon'       => 'fa-rocket',
+                            'label'      => 'layouts.Full_Cycle_Simulator',
+                            'segment'    => '/api-simulator',
                         ],
                     ],
                 ],

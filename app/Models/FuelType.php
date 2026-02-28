@@ -30,4 +30,9 @@ class FuelType extends Model
     {
         return $this->belongsToMany(Station::class, 'station_fuel_types')->withTimestamps();
     }
+
+    public function vehicles(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Vehicle::class, 'fuel_type_id');
+    }
 }
