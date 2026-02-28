@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 use App\Traits\LogsActivity;
 
@@ -54,5 +55,10 @@ class Station extends Model
     public function settlements()
     {
         return $this->hasMany(Settlement::class);
+    }
+
+    public function workers()
+    {
+        return $this->hasMany(StationWorker::class);
     }
 }
