@@ -72,7 +72,7 @@ class LiveMonitorController extends Controller
 
         $transaction = FuelTransaction::where('client_id', $clientId)
             ->where('id', $id)
-            ->with(['vehicle:id,plate_number', 'driver:id,name', 'station:id,name,latitude,longitude', 'fuelType:id,name'])
+            ->with(['vehicle:id,plate_number', 'driver:id,name', 'station:id,name,lat,lng', 'fuelType:id,name'])
             ->first();
 
         if (!$transaction) {

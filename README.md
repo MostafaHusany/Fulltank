@@ -50,9 +50,18 @@ All API responses follow a consistent JSON structure:
 
 ```json
 {
-    "status": "success|error",
+    "status": true,
     "message": "Response message",
     "data": { ... }
+}
+```
+
+**Error Response:**
+```json
+{
+    "status": false,
+    "message": "Error message",
+    "errors": { ... }
 }
 ```
 
@@ -83,7 +92,7 @@ Accept: application/json
 For **Driver**:
 ```json
 {
-    "status": "success",
+    "status": true,
     "message": "تم تسجيل الدخول بنجاح",
     "data": {
         "id": 6,
@@ -117,7 +126,7 @@ For **Driver**:
 For **Worker**:
 ```json
 {
-    "status": "success",
+    "status": true,
     "message": "تم تسجيل الدخول بنجاح",
     "data": {
         "id": 9,
@@ -144,7 +153,7 @@ For **Worker**:
 **Error Response (401):**
 ```json
 {
-    "status": "error",
+    "status": false,
     "message": "بيانات الدخول غير صحيحة"
 }
 ```
@@ -166,7 +175,7 @@ Accept: application/json
 **Success Response (200):**
 ```json
 {
-    "status": "success",
+    "status": true,
     "message": "تم تسجيل الخروج بنجاح"
 }
 ```
@@ -221,22 +230,36 @@ Content-Type: application/json
 
 **Endpoint:** `GET /api/mobile/driver/dashboard`
 
-**Success Response (200):**
+**Success Response (200) - With Vehicle:**
 ```json
 {
-    "status": "success",
+    "status": true,
     "data": {
+        "has_vehicle": true,
         "vehicle": {
             "id": 1,
             "plate_number": "ق ص ر 1234",
             "model": "تويوتا هايس 2022",
-            "fuel_type": "بنزين 92"
+            "fuel_type": "بنزين 92",
+            "status": "active"
         },
         "quota": {
-            "limit": 5000.00,
-            "consumed": 1200.00,
-            "remaining": 3800.00
+            "amount_limit": 5000.00,
+            "consumed_amount": 1200.00,
+            "remaining_amount": 3800.00,
+            "reset_cycle": "monthly"
         }
+    }
+}
+```
+
+**Success Response (200) - No Vehicle:**
+```json
+{
+    "status": true,
+    "data": {
+        "has_vehicle": false,
+        "message": "لا يوجد مركبة مخصصة لك"
     }
 }
 ```
@@ -269,7 +292,7 @@ Create a new fueling request with OTP code.
 **Success Response (200):**
 ```json
 {
-    "status": "success",
+    "status": true,
     "message": "تم إنشاء طلب التزود بالوقود",
     "data": {
         "request_id": 15,
@@ -286,7 +309,7 @@ Create a new fueling request with OTP code.
 **Error Response (400) - Insufficient Balance:**
 ```json
 {
-    "status": "error",
+    "status": false,
     "message": "الرصيد غير كافي. المتاح: 500.00 ج.م، المطلوب: 625.00 ج.م",
     "data": {
         "available_balance": 500.00,
@@ -298,7 +321,7 @@ Create a new fueling request with OTP code.
 **Error Response (400) - Quota Exceeded:**
 ```json
 {
-    "status": "error",
+    "status": false,
     "message": "الكمية المطلوبة تتجاوز الحد المتبقي: 30.00 لتر",
     "data": {
         "remaining_quota": 30.00
@@ -317,7 +340,7 @@ Check for pending/active fueling requests.
 **Success Response (200) - Has Active Request:**
 ```json
 {
-    "status": "success",
+    "status": true,
     "data": {
         "has_active_request": true,
         "request": {
@@ -337,7 +360,7 @@ Check for pending/active fueling requests.
 **Success Response (200) - No Active Request:**
 ```json
 {
-    "status": "success",
+    "status": true,
     "data": {
         "has_active_request": false
     }
@@ -355,7 +378,7 @@ Cancel a pending fueling request.
 **Success Response (200):**
 ```json
 {
-    "status": "success",
+    "status": true,
     "message": "تم إلغاء الطلب بنجاح"
 }
 ```
@@ -371,7 +394,7 @@ Retrieve past fueling requests.
 **Success Response (200):**
 ```json
 {
-    "status": "success",
+    "status": true,
     "data": {
         "requests": [
             {
@@ -423,7 +446,7 @@ Find fuel stations near the driver's location.
 **Success Response (200):**
 ```json
 {
-    "status": "success",
+    "status": true,
     "data": {
         "stations": [
             {
@@ -492,7 +515,7 @@ Find fuel stations near the driver's location.
 **Success Response (200):**
 ```json
 {
-    "status": "success",
+    "status": true,
     "data": {
         "id": 1,
         "name": "محطة مصر للبترول - مدينة نصر",
@@ -535,7 +558,7 @@ List all available fuel types.
 **Success Response (200):**
 ```json
 {
-    "status": "success",
+    "status": true,
     "data": {
         "fuel_types": [
             {
@@ -590,18 +613,27 @@ Content-Type: application/json
 **Success Response (200):**
 ```json
 {
-    "status": "success",
+    "status": true,
     "data": {
         "station": {
             "id": 1,
-            "name": "محطة مصر للبترول - مدينة نصر"
+            "name": "محطة مصر للبترول - مدينة نصر",
+            "address": "شارع عباس العقاد، مدينة نصر"
         },
         "today_stats": {
             "transactions": 12,
-            "liters": 480.5,
+            "liters": 480.50,
             "amount": 6006.25
         }
     }
+}
+```
+
+**Error Response (400) - Not Assigned:**
+```json
+{
+    "status": false,
+    "message": "لم يتم تعيينك لأي محطة"
 }
 ```
 
@@ -627,7 +659,7 @@ Verify a fueling request using the OTP code provided by the driver.
 **Success Response (200):**
 ```json
 {
-    "status": "success",
+    "status": true,
     "message": "جاهز للتزويد",
     "data": {
         "request_id": 15,
@@ -650,7 +682,7 @@ Verify a fueling request using the OTP code provided by the driver.
 **Error Response (404) - Invalid OTP:**
 ```json
 {
-    "status": "error",
+    "status": false,
     "message": "لم يتم العثور على الطلب"
 }
 ```
@@ -658,7 +690,7 @@ Verify a fueling request using the OTP code provided by the driver.
 **Error Response (400) - Expired:**
 ```json
 {
-    "status": "error",
+    "status": false,
     "message": "انتهت صلاحية الطلب"
 }
 ```
@@ -687,7 +719,7 @@ Complete the fueling transaction.
 **Success Response (200):**
 ```json
 {
-    "status": "success",
+    "status": true,
     "message": "تم إتمام عملية التزود بالوقود",
     "data": {
         "transaction_id": 101,
@@ -702,7 +734,7 @@ Complete the fueling transaction.
 **Error Response (400) - Insufficient Balance:**
 ```json
 {
-    "status": "error",
+    "status": false,
     "message": "رصيد العميل غير كافي. المتاح: 500.00، المطلوب: 606.25"
 }
 ```
@@ -727,7 +759,7 @@ Upload pump meter image as proof of transaction.
 **Success Response (200):**
 ```json
 {
-    "status": "success",
+    "status": true,
     "message": "تم رفع صورة العداد بنجاح",
     "data": {
         "transaction_id": 101,
@@ -747,7 +779,7 @@ Get worker's statistics for today.
 **Success Response (200):**
 ```json
 {
-    "status": "success",
+    "status": true,
     "data": {
         "today": {
             "transactions": 8,
@@ -769,7 +801,7 @@ Get worker's recent transactions.
 **Success Response (200):**
 ```json
 {
-    "status": "success",
+    "status": true,
     "data": {
         "transactions": [
             {

@@ -93,7 +93,7 @@ class AuthController extends Controller
     {
         $stationWorker = StationWorker::where('user_id', $user->id)
             ->where('is_active', true)
-            ->with('station:id,name,address,latitude,longitude')
+            ->with('station:id,name,address,lat,lng')
             ->first();
 
         if (!$stationWorker || !$stationWorker->station) {
@@ -107,8 +107,8 @@ class AuthController extends Controller
                 'id'        => $stationWorker->station->id,
                 'name'      => $stationWorker->station->name,
                 'address'   => $stationWorker->station->address,
-                'latitude'  => $stationWorker->station->latitude,
-                'longitude' => $stationWorker->station->longitude,
+                'latitude'  => $stationWorker->station->lat,
+                'longitude' => $stationWorker->station->lng,
             ],
         ]);
     }
