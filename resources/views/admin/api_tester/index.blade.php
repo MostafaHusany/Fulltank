@@ -98,6 +98,10 @@
                             <span class="method-badge method-post">POST</span>
                             <span class="ms-2">Driver Login</span>
                         </div>
+                        <div class="list-group-item endpoint-card" data-endpoint="driver-dashboard">
+                            <span class="method-badge method-get">GET</span>
+                            <span class="ms-2">Driver Dashboard</span>
+                        </div>
                         <div class="list-group-item endpoint-card" data-endpoint="driver-request">
                             <span class="method-badge method-post">POST</span>
                             <span class="ms-2">Create Fueling Request</span>
@@ -233,6 +237,17 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    {{-- Driver Dashboard Form --}}
+                    <div class="test-form-section" id="form-driver-dashboard">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            This endpoint returns the driver's vehicle information, quota limits, and current consumption.
+                        </div>
+                        <button class="btn btn-info" onclick="runDriverDashboard()">
+                            <i class="fas fa-tachometer-alt me-2"></i>Get Driver Dashboard
+                        </button>
                     </div>
 
                     {{-- Create Fueling Request Form --}}
@@ -482,6 +497,7 @@ $(document).ready(function() {
         
         const endpointMap = {
             'driver-login': { title: 'Driver Login', path: '/login', form: 'form-driver-login' },
+            'driver-dashboard': { title: 'Driver Dashboard', path: '/driver/dashboard', form: 'form-driver-dashboard' },
             'worker-login': { title: 'Worker Login', path: '/login', form: 'form-worker-login' },
             'driver-request': { title: 'Create Fueling Request', path: '/driver/request', form: 'form-driver-request' },
             'driver-active': { title: 'Get Active Request', path: '/driver/request/active', form: 'form-driver-active' },
@@ -709,6 +725,16 @@ $(document).ready(function() {
                 setLoading(false);
             }
         });
+    };
+
+    window.runDriverDashboard = function() {
+        const token = $('#driverToken').val();
+        if (!token) {
+            toastr.error('Please login as driver first');
+            return;
+        }
+
+        makeApiRequest('GET', API_BASE + '/driver/dashboard', {}, token);
     };
 
     window.runCreateRequest = function() {
