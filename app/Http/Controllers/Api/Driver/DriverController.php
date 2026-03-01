@@ -24,7 +24,7 @@ class DriverController extends Controller
             ]);
         }
 
-        $vehicle->load(['fuelType:id,name', 'activeQuota']);
+        $vehicle->load(['fuelType:id,name,price_per_liter', 'activeQuota']);
 
         $quotaData = null;
         if ($vehicle->activeQuota) {
@@ -39,11 +39,13 @@ class DriverController extends Controller
         return $this->success([
             'has_vehicle' => true,
             'vehicle'     => [
-                'id'           => $vehicle->id,
-                'plate_number' => $vehicle->plate_number,
-                'model'        => $vehicle->model,
-                'fuel_type'    => $vehicle->fuelType?->name,
-                'status'       => $vehicle->status,
+                'id'                   => $vehicle->id,
+                'plate_number'         => $vehicle->plate_number,
+                'model'                => $vehicle->model,
+                'fuel_type'            => $vehicle->fuelType?->name,
+                'fuel_type_id'         => $vehicle->fuelType?->id,
+                'fuel_price_per_liter' => $vehicle->fuelType ? (float) $vehicle->fuelType->price_per_liter : null,
+                'status'               => $vehicle->status,
             ],
             'quota'       => $quotaData,
         ]);

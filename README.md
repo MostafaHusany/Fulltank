@@ -46,6 +46,42 @@ php artisan serve
 
 Base URL: `/api/mobile`
 
+## Quick Reference
+
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/login` | Login (driver/worker) |
+| POST | `/logout` | Logout |
+| GET | `/profile` | Get current profile |
+| GET | `/profile/refresh` | Refresh profile data |
+
+### Driver Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/driver/dashboard` | Get vehicle & quota info |
+| POST | `/driver/request` | Create fueling request |
+| GET | `/driver/request/active` | Get active request |
+| POST | `/driver/request/{id}/cancel` | Cancel request |
+| GET | `/driver/request/history` | Get request history |
+| GET | `/driver/nearby-stations` | Find nearby stations |
+| GET | `/driver/stations/{id}` | Get station details |
+| GET | `/driver/fuel-types` | List fuel types |
+
+### Worker Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/worker/dashboard` | Get station & today stats |
+| POST | `/worker/verify-request` | Verify OTP code |
+| POST | `/worker/confirm-fueling` | Complete transaction |
+| POST | `/worker/upload-proof` | Upload meter image |
+| GET | `/worker/today-stats` | Get today's statistics |
+| GET | `/worker/recent-transactions` | Get recent transactions |
+
+---
+
+## Response Format
+
 All API responses follow a consistent JSON structure:
 
 ```json
@@ -241,6 +277,8 @@ Content-Type: application/json
             "plate_number": "ق ص ر 1234",
             "model": "تويوتا هايس 2022",
             "fuel_type": "بنزين 92",
+            "fuel_type_id": 2,
+            "fuel_price_per_liter": 12.50,
             "status": "active"
         },
         "quota": {
@@ -898,10 +936,76 @@ API requests are limited to prevent abuse:
 
 ## Testing
 
+### API Test Lab
 Use the built-in API Test Lab in the Admin Panel:
 1. Login as Admin: `/admin/login`
 2. Navigate to: Developer Tools → API Test Lab
 3. Test all endpoints with real database records
+
+### Full-Cycle Simulator
+Run automated end-to-end tests:
+1. Navigate to: Developer Tools → Full-Cycle Simulator
+2. Click "Start Auto-Test"
+3. Watch the complete fueling flow execute automatically
+
+---
+
+## Test Data (Seeders)
+
+The database seeders create comprehensive test data for Egypt:
+
+### Governorates & Districts
+- 27 Egyptian governorates (محافظات)
+- Districts for Cairo, Giza, Alexandria, Dakahlia, Sharqia
+
+### Fuel Types
+| Name | Price/Liter |
+|------|-------------|
+| بنزين 80 | 11.00 ج.م |
+| بنزين 92 | 12.50 ج.م |
+| بنزين 95 | 14.00 ج.م |
+| سولار | 10.00 ج.م |
+| غاز طبيعي | 5.50 ج.م |
+
+### Test Companies (Clients)
+| Company | Username | Balance |
+|---------|----------|---------|
+| شركة النقل السريع | `fast_transport` | 50,000 |
+| شركة التوصيل الذهبي | `golden_delivery` | 75,000 |
+| شركة النيل للنقل | `nile_transport` | 100,000 |
+| شركة مصر للشحن | `egypt_shipping` | 35,000 |
+| شركة الصقر للنقل | `falcon_transport` | 60,000 |
+
+### Test Stations
+| Station | Location | Workers |
+|---------|----------|---------|
+| محطة مصر للبترول - مدينة نصر | Cairo | 3 |
+| محطة موبيل - الهرم | Giza | 2 |
+| محطة شل - سموحة | Alexandria | 3 |
+| محطة طاقة - 6 أكتوبر | Giza | 2 |
+| محطة كويت بتروليوم - حلوان | Cairo | 2 |
+
+### Running Seeders
+```bash
+# Fresh migration with all seeders
+php artisan migrate:fresh --seed
+
+# Run specific seeder
+php artisan db:seed --class=FuelTypeSeeder
+```
+
+---
+
+## User Categories
+
+| Category | Description | Access |
+|----------|-------------|--------|
+| `admin` | System administrator | Full access (bypasses permissions) |
+| `technical` | Technical staff | Role-based permissions (Laratrust) |
+| `client` | Fleet owner | Manages drivers, vehicles, wallet |
+| `station_manager` | Station manager | Manages station & workers |
+| `worker` | Station employee | Mobile app - processes fueling |
+| `driver` | Vehicle driver | Mobile app - requests fueling |
 
 ---
 
