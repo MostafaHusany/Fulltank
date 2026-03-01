@@ -3,7 +3,7 @@
 return [
     'panel_title'        => 'Station Panel',
     'station_panel'      => 'Station Panel',
-    'currency'           => 'SAR',
+    'currency'           => 'EGP',
     'outstanding_balance' => 'Outstanding Balance',
     'current_due'        => 'Current Due',
 
