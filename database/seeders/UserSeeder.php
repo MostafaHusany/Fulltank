@@ -126,41 +126,59 @@ class UserSeeder extends Seeder
                 'username' => 'station_nasr',
                 'email'    => 'nasr_station@example.com',
                 'phone'    => '01200000001',
+                'balance'  => 0.00,
             ],
             [
                 'name'     => 'حسام الدين',
                 'username' => 'station_giza',
                 'email'    => 'giza_station@example.com',
                 'phone'    => '01200000002',
+                'balance'  => 0.00,
             ],
             [
                 'name'     => 'طارق سعيد',
                 'username' => 'station_alex',
                 'email'    => 'alex_station@example.com',
                 'phone'    => '01200000003',
+                'balance'  => 0.00,
             ],
             [
                 'name'     => 'مصطفى كامل',
                 'username' => 'station_october',
                 'email'    => 'october_station@example.com',
                 'phone'    => '01200000004',
+                'balance'  => 0.00,
             ],
             [
                 'name'     => 'عادل منصور',
                 'username' => 'station_helwan',
                 'email'    => 'helwan_station@example.com',
                 'phone'    => '01200000005',
+                'balance'  => 0.00,
             ],
         ];
 
-        foreach ($managers as $manager) {
-            User::firstOrCreate(
-                ['username' => $manager['username']],
-                array_merge($manager, [
+        foreach ($managers as $managerData) {
+            $balance = $managerData['balance'];
+            unset($managerData['balance']);
+
+            $manager = User::firstOrCreate(
+                ['username' => $managerData['username']],
+                array_merge($managerData, [
                     'password'  => Hash::make('123456'),
                     'category'  => 'station_manager',
                     'is_active' => true,
                 ])
+            );
+
+            // Create wallet for station manager
+            Wallet::firstOrCreate(
+                ['user_id' => $manager->id],
+                [
+                    'valide_balance'   => $balance,
+                    'pendding_balance' => 0,
+                    'is_active'        => true,
+                ]
             );
         }
     }

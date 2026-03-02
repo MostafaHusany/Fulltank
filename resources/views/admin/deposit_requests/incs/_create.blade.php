@@ -16,12 +16,12 @@
         <div class="mb-3">
             <label class="form-label">@lang('deposit_requests.Client') <span class="text-danger">*</span></label>
             <select id="client_id" class="form-select" style="width:100%"></select>
-            <div class="err-msg mt-2 alert alert-danger d-none" id="client_idErr"></div>
+            <div class="err-msg mt-2 alert alert-danger py-2" style="display: none;" id="client_idErr"></div>
         </div>
         <div class="mb-3">
             <label class="form-label">@lang('deposit_requests.Amount') <span class="text-danger">*</span></label>
             <input type="number" step="0.01" min="0.01" class="form-control" id="amount">
-            <div class="err-msg mt-2 alert alert-danger d-none" id="amountErr"></div>
+            <div class="err-msg mt-2 alert alert-danger py-2" style="display: none;" id="amountErr"></div>
         </div>
         <div class="mb-3 row">
             <div class="col-6">
@@ -36,12 +36,12 @@
         <div class="mb-3">
             <label class="form-label">@lang('deposit_requests.Payment Method') <span class="text-danger">*</span></label>
             <select id="payment_method_id" class="form-select"></select>
-            <div class="err-msg mt-2 alert alert-danger d-none" id="payment_method_idErr"></div>
+            <div class="err-msg mt-2 alert alert-danger py-2" style="display: none;" id="payment_method_idErr"></div>
         </div>
         <div class="mb-3">
             <label class="form-label">@lang('deposit_requests.Proof Image') <span class="text-danger">*</span></label>
             <input type="file" class="form-control" id="proof_image" accept="image/*">
-            <div class="err-msg mt-2 alert alert-danger d-none" id="proof_imageErr"></div>
+            <div class="err-msg mt-2 alert alert-danger py-2" style="display: none;" id="proof_imageErr"></div>
         </div>
         <div class="d-flex flex-wrap gap-2 justify-content-end mt-3">
             <button type="button" class="toggle-btn btn btn-outline-secondary" data-current-card="#createObjectCard" data-target-card="#objectsCard">@lang('layouts.cancel')</button>
