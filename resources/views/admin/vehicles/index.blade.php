@@ -4,6 +4,15 @@
     <h1 class="h2">@lang('vehicles.Title Administration')</h1>
 @endpush
 
+@push('custome-css')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+    .vehicle-admin-map { height: 320px; z-index: 1; }
+    #vehicles-live-map { height: 360px; z-index: 1; }
+    #vehicle-daily-route-map { height: 340px; z-index: 1; }
+</style>
+@endpush
+
 @section('content')
     <div id="objectsCard" class="card">
         <div class="card-header">
@@ -37,6 +46,17 @@
 
         <div class="card-body custome-table p-2 p-md-3">
             @include('admin.vehicles.incs._search')
+
+            <div class="mb-3 p-2 p-md-3 border rounded bg-light">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                    <div>
+                        <h6 class="mb-0 fw-semibold">@lang('vehicles.Live Fleet Map')</h6>
+                        <div class="text-muted small">@lang('vehicles.Live map hint')</div>
+                    </div>
+                    <span class="badge bg-secondary" id="vehicles-live-map-updated">—</span>
+                </div>
+                <div id="vehicles-live-map" class="border rounded bg-white"></div>
+            </div>
 
             <div class="table-responsive">
             <table id="dataTable" class="table table-sm table-hover text-center mb-0">
@@ -73,29 +93,196 @@
 @endSection
 
 @push('custome-js')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
     (function () {
         var filterClientId   = @json($filterClientId ?? null);
         var filterClientName = @json($filterClientName ?? null);
 
         const ROUTES = {
-            index   : "{{ route('admin.vehicles.index') }}",
-            store   : "{{ route('admin.vehicles.store') }}",
-            clients : "{{ route('admin.search.clients') }}"
+            index            : "{{ route('admin.vehicles.index') }}",
+            store            : "{{ route('admin.vehicles.store') }}",
+            clients          : "{{ route('admin.search.clients') }}",
+            trackingLive     : "{{ route('admin.vehicles.tracking.live') }}",
+            trackingHistoryTpl: "{{ route('admin.vehicles.tracking.history', ['vehicle' => 999999999]) }}"
         };
-        
+
         const LANG = {
             client_required   : '@lang("vehicles.client_required")',
-            plate_required    : '@lang("vehicles.plate_number_required")',
-            model_required    : '@lang("vehicles.model_required")',
-            fuel_required     : '@lang("vehicles.fuel_type_required")',
-            active            : '@lang("layouts.active")',
-            inactive          : '@lang("layouts.de-active")',
-            historyPlaceholder: '{{ __("vehicles.History Placeholder") }}',
-            selectClient      : '{{ __("vehicles.Select Client") }}'
+            plate_required      : '@lang("vehicles.plate_number_required")',
+            model_required      : '@lang("vehicles.model_required")',
+            fuel_required       : '@lang("vehicles.fuel_type_required")',
+            active              : '@lang("layouts.active")',
+            inactive            : '@lang("layouts.de-active")',
+            selectClient        : '{{ __("vehicles.Select Client") }}',
+            lastReported        : '{{ __("vehicles.Last reported") }}',
+            noFuelVisits        : '{{ __("vehicles.No fuel visits") }}',
+            noDailyRoutes       : '{{ __("vehicles.No daily routes") }}'
         };
 
         const VALIDATION = { client_id: LANG.client_required, plate_number: LANG.plate_required, model: LANG.model_required, fuel_type_id: LANG.fuel_required };
+
+        let liveFleetMap = null;
+        let liveFleetLayer = null;
+        let liveFleetInterval = null;
+        let vehicleDailyRouteMap = null;
+        let vehicleDailyRouteLayer = null;
+        let vehicleDailyRoutePolyline = null;
+        let vehicleRoutesLocationsById = {};
+
+        function trackingHistoryUrl(vehicleId) {
+            return ROUTES.trackingHistoryTpl.replace('999999999', String(vehicleId));
+        }
+
+        function fmtWhen(iso) {
+            if (!iso) return '—';
+            try {
+                const d = new Date(iso);
+                return isNaN(d.getTime()) ? iso : d.toLocaleString();
+            } catch (e) { return iso; }
+        }
+
+        function initLiveFleetMap() {
+            if (typeof L === 'undefined' || !document.getElementById('vehicles-live-map')) return;
+            if (liveFleetMap) return;
+            liveFleetMap = L.map('vehicles-live-map', { scrollWheelZoom: false }).setView([30.0444, 31.2357], 11);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(liveFleetMap);
+            liveFleetLayer = L.layerGroup().addTo(liveFleetMap);
+        }
+
+        function refreshLiveFleetMap() {
+            if (!liveFleetMap || !liveFleetLayer) return;
+            const params = {};
+            if (filterClientId) params.client_id = filterClientId;
+            else if ($('#s-client_id').length && $('#s-client_id').val()) params.client_id = $('#s-client_id').val();
+
+            axios.get(ROUTES.trackingLive, { params: params }).then(function (res) {
+                const payload = res.data || {};
+                if (!payload.success) {
+                    if (payload.msg) failerToast(typeof payload.msg === 'string' ? payload.msg : 'Error');
+                    return;
+                }
+                const rows = payload.data || [];
+                liveFleetLayer.clearLayers();
+                const bounds = [];
+                rows.forEach(function (row) {
+                    if (row.lat == null || row.lng == null) return;
+                    const color = row.status === 'active' ? '#198754' : '#6c757d';
+                    const m = L.circleMarker([row.lat, row.lng], { radius: 8, color: color, fillColor: color, fillOpacity: 0.85, weight: 2 });
+                    m.bindPopup('<strong>' + (row.plate || '') + '</strong><br>' + (row.client_name || '') + '<br><small>' + LANG.lastReported + ': ' + fmtWhen(row.recorded_at) + '</small>');
+                    m.addTo(liveFleetLayer);
+                    bounds.push([row.lat, row.lng]);
+                });
+                if (bounds.length) {
+                    liveFleetMap.fitBounds(bounds, { padding: [28, 28], maxZoom: 13 });
+                }
+                $('#vehicles-live-map-updated').text(new Date().toLocaleTimeString());
+                setTimeout(function () { liveFleetMap.invalidateSize(); }, 200);
+            }).catch(function () {
+                $('#vehicles-live-map-updated').text('—');
+            });
+        }
+
+        function ensureDailyRouteMap() {
+            if (typeof L === 'undefined' || !document.getElementById('vehicle-daily-route-map')) return false;
+            if (vehicleDailyRouteMap) return true;
+            vehicleDailyRouteMap = L.map('vehicle-daily-route-map', { scrollWheelZoom: false }).setView([30.0444, 31.2357], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(vehicleDailyRouteMap);
+            vehicleDailyRouteLayer = L.layerGroup().addTo(vehicleDailyRouteMap);
+            return true;
+        }
+
+        function clearDailyRouteMap() {
+            if (!vehicleDailyRouteMap || !vehicleDailyRouteLayer) return;
+            vehicleDailyRouteLayer.clearLayers();
+            if (vehicleDailyRoutePolyline) {
+                vehicleDailyRouteMap.removeLayer(vehicleDailyRoutePolyline);
+                vehicleDailyRoutePolyline = null;
+            }
+        }
+
+        function selectVehicleDailyRoute(routeId) {
+            if (!ensureDailyRouteMap()) return;
+            clearDailyRouteMap();
+            const key = String(routeId);
+            const locs = vehicleRoutesLocationsById[key] || [];
+            const latlngs = locs.map(function (p) { return [p.lat, p.lng]; });
+
+            if (latlngs.length > 1) {
+                vehicleDailyRoutePolyline = L.polyline(latlngs, { color: '#0d6efd', weight: 4, opacity: 0.88 }).addTo(vehicleDailyRouteMap);
+                vehicleDailyRouteMap.fitBounds(latlngs, { padding: [26, 26], maxZoom: 14 });
+            } else if (latlngs.length === 1) {
+                L.circleMarker(latlngs[0], { radius: 9, color: '#0d6efd', fillColor: '#0d6efd', fillOpacity: 0.9 }).addTo(vehicleDailyRouteLayer);
+                vehicleDailyRouteMap.setView(latlngs[0], 13);
+            } else {
+                vehicleDailyRouteMap.setView([30.0444, 31.2357], 11);
+            }
+
+            setTimeout(function () { if (vehicleDailyRouteMap) vehicleDailyRouteMap.invalidateSize(); }, 250);
+        }
+
+        function loadVehicleShowTracking(vehicleId) {
+            vehicleRoutesLocationsById = {};
+
+            axios.get(trackingHistoryUrl(vehicleId)).then(function (res) {
+                const payload = res.data || {};
+                if (!payload.success) {
+                    if (payload.msg) failerToast(typeof payload.msg === 'string' ? payload.msg : 'Error');
+                    return;
+                }
+                const pack = payload.data || {};
+                const trips = pack.fuel_visits || [];
+                const dailyRoutes = pack.daily_routes || [];
+                vehicleRoutesLocationsById = pack.locations_by_daily_route || {};
+
+                const $tb = $('#vehicle-show-trips-body');
+                $tb.empty();
+                if (!trips.length) {
+                    $tb.append('<tr><td colspan="5" class="text-muted text-center py-3">' + LANG.noFuelVisits + '</td></tr>');
+                } else {
+                    trips.forEach(function (t) {
+                        $tb.append(
+                            '<tr><td>' + fmtWhen(t.completed_at) + '</td>' +
+                            '<td>' + (t.station_name || '—') + '</td>' +
+                            '<td>' + (t.driver_name || '—') + '</td>' +
+                            '<td>' + (t.actual_liters != null ? Number(t.actual_liters).toFixed(3) : '—') + '</td>' +
+                            '<td>' + (t.total_amount != null ? Number(t.total_amount).toFixed(2) : '—') + '</td></tr>'
+                        );
+                    });
+                }
+
+                const $rb = $('#vehicle-daily-routes-body');
+                $rb.empty();
+                if (!dailyRoutes.length) {
+                    $rb.append('<tr><td colspan="4" class="text-muted text-center py-3">' + LANG.noDailyRoutes + '</td></tr>');
+                    clearDailyRouteMap();
+                } else {
+                    dailyRoutes.forEach(function (r, idx) {
+                        const win = (r.started_at && r.ended_at) ? (fmtWhen(r.started_at) + ' – ' + fmtWhen(r.ended_at)) : '—';
+                        const dist = r.distance_km != null ? Number(r.distance_km).toFixed(2) : '—';
+                        $rb.append(
+                            '<tr style="cursor:pointer" data-route-id="' + r.id + '" class="' + (idx === 0 ? 'table-primary' : '') + '">' +
+                            '<td>' + (r.route_date || '—') + '</td>' +
+                            '<td>' + (r.point_count != null ? r.point_count : '—') + '</td>' +
+                            '<td>' + dist + '</td>' +
+                            '<td class="small">' + win + '</td></tr>'
+                        );
+                    });
+                    selectVehicleDailyRoute(dailyRoutes[0].id);
+                }
+
+                setTimeout(function () { if (vehicleDailyRouteMap) vehicleDailyRouteMap.invalidateSize(); }, 550);
+            }).catch(function (err) {
+                const msg = err.response?.data?.msg;
+                failerToast(Array.isArray(msg) ? msg[0] : (msg || 'Error'));
+            });
+        }
 
         $('document').ready(function () {
 
@@ -168,6 +355,13 @@
                     $('#show-model').text(data.model || '---');
                     $('#show-fuel_type').text(data.fuel_type_name || '---');
                     $('#show-status').html(data.status === 'active' ? `<span class="badge bg-success">${LANG.active}</span>` : `<span class="badge bg-warning">${LANG.inactive}</span>`);
+                    const detBtn = document.getElementById('vehicle-tab-details-btn');
+                    if (detBtn && window.bootstrap && window.bootstrap.Tab) {
+                        window.bootstrap.Tab.getOrCreateInstance(detBtn).show();
+                    }
+                    if ($('#vehicle-daily-route-map').length) {
+                        loadVehicleShowTracking(id);
+                    }
                     return true;
                 } catch (err) {
                     const msg = err.response?.data?.msg || (typeof err === 'string' ? err : (Array.isArray(err) ? err[0] : 'Error'));
@@ -240,11 +434,49 @@
                     }
                 });
 
-                $(document).on('click', '.vehicle-history-btn', function () {
-                    successToast(`${LANG.historyPlaceholder}: ${$(this).data('plate')}`);
+                $(document).on('click', '.vehicle-history-btn', function (e) {
+                    e.preventDefault();
+                    const id = $(this).data('vehicle-id');
+                    const $show = $(`.show-object[data-object-id="${id}"]`).first();
+                    if ($show.length) {
+                        $show.trigger('click');
+                    }
+                });
+
+                $(document).on('click', '#vehicle-daily-routes-body tr[data-route-id]', function () {
+                    const id = $(this).data('route-id');
+                    selectVehicleDailyRoute(id);
+                    $('#vehicle-daily-routes-body tr[data-route-id]').removeClass('table-primary');
+                    $(this).addClass('table-primary');
+                });
+
+                const routesTabBtn = document.getElementById('vehicle-tab-routes-btn');
+                if (routesTabBtn) {
+                    routesTabBtn.addEventListener('shown.bs.tab', function () {
+                        setTimeout(function () {
+                            if (vehicleDailyRouteMap) vehicleDailyRouteMap.invalidateSize();
+                        }, 200);
+                    });
+                }
+
+                initLiveFleetMap();
+                refreshLiveFleetMap();
+                if (liveFleetMap) {
+                    liveFleetInterval = setInterval(refreshLiveFleetMap, 15000);
+                }
+
+                $('.search-action').on('keyup change', function () {
+                    clearTimeout(window._vehLiveSearchT);
+                    window._vehLiveSearchT = setTimeout(refreshLiveFleetMap, 600);
+                });
+                $('#s-client_id').on('change', function () {
+                    refreshLiveFleetMap();
                 });
             })();
-            
+
+            $(window).on('beforeunload', function () {
+                if (liveFleetInterval) clearInterval(liveFleetInterval);
+            });
 
         });
     })();

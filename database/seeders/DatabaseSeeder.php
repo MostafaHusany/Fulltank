@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
 
             // Vehicles & Drivers
             VehicleSeeder::class,
+            VehicleLocationSeeder::class,
 
             // Transactions (Demo Data)
             FuelTransactionSeeder::class,

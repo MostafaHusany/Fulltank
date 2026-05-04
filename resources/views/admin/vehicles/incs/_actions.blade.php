@@ -41,7 +41,8 @@
             </button>
             @endif
 
-            <button class="dropdown-item vehicle-history-btn text-secondary" data-vehicle-id="{{ $row_object->id }}" data-plate="{{ $row_object->formatted_plate_number }}">
+            @if($permissions == 'admin' || in_array('vehicles_show', $permissions))
+            <button type="button" class="dropdown-item vehicle-history-btn text-secondary" data-vehicle-id="{{ $row_object->id }}" data-plate="{{ $row_object->formatted_plate_number }}">
                 <div class="row">
                     <div class="col-8 text-left">
                         <span>@lang('vehicles.History')</span>
@@ -51,6 +52,7 @@
                     </div>
                 </div><!-- /.row -->
             </button>
+            @endif
 
             @if($permissions == 'admin' || in_array('vehicles_delete', $permissions))
             <div class="dropdown-divider"></div>

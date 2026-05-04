@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use App\Models\VehicleLocation;
+use App\Observers\VehicleLocationObserver;
 use App\Services\Station\BalanceService;
 
 // use App\Models\WorkshopOrder;
@@ -30,6 +32,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        VehicleLocation::observe(VehicleLocationObserver::class);
+
         View::composer('layouts.station.*', function ($view) {
             $stationBalance = null;
             

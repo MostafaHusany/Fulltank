@@ -46,6 +46,21 @@ class Vehicle extends Model
         return $this->hasMany(FuelTransaction::class);
     }
 
+    public function locations(): HasMany
+    {
+        return $this->hasMany(VehicleLocation::class);
+    }
+
+    public function latestLocation(): HasOne
+    {
+        return $this->hasOne(VehicleLocation::class)->latestOfMany('recorded_at');
+    }
+
+    public function dailyRoutes(): HasMany
+    {
+        return $this->hasMany(VehicleDailyRoute::class)->orderByDesc('route_date');
+    }
+
     /**
      * Drivers assigned to this vehicle.
      */

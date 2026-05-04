@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Vehicle;
 use App\Models\User;
 use App\Models\FuelType;
+use App\Models\FuelTransaction;
+use App\Models\VehicleDailyRoute;
+use App\Models\VehicleLocation;
 
 use App\Http\Traits\ResponseTemplate;
 
@@ -222,5 +225,128 @@ class VehicleController extends Controller
         }
 
         return $query->orderBy('plate_number')->limit(30)->get(['id', 'plate_number', 'model', 'client_id']);
+    }
+
+    /**
+     * Latest GPS-style position per vehicle (for live admin map).
+     */
+    public function trackingLive(Request $request)
+    {
+        if (!$this->userCanViewVehicleTracking()) {
+            return $this->responseTemplate(null, false, __('vehicles.tracking_forbidden'), 403);
+        }
+
+        $query = Vehicle::query()
+            ->with(['latestLocation', 'client:id,name,company_name'])
+            ->when($request->filled('client_id'), fn ($q) => $q->where('client_id', $request->client_id))
+            ->adminFilter();
+
+        $rows = $query->orderBy('id', 'desc')->limit(500)->get();
+
+        $data = $rows->map(function (Vehicle $v) {
+            $loc = $v->latestLocation;
+
+            return [
+                'vehicle_id'    => $v->id,
+                'plate'         => $v->formatted_plate_number,
+                'status'        => $v->status,
+                'client_name'   => $v->client ? ($v->client->company_name ?: $v->client->name) : null,
+                'lat'           => $loc ? (float) $loc->lat : null,
+                'lng'           => $loc ? (float) $loc->lng : null,
+                'recorded_at'   => $loc?->recorded_at?->toIso8601String(),
+            ];
+        })->values();
+
+        return $this->responseTemplate($data, true, null);
+    }
+
+    /**
+     * Recent location trail + completed fuel visits (trips) for one vehicle.
+     */
+    public function trackingHistory(Request $request, Vehicle $vehicle)
+    {
+        if (!$this->userCanViewVehicleTracking()) {
+            return $this->responseTemplate(null, false, __('vehicles.tracking_forbidden'), 403);
+        }
+
+        $sinceDate = now()->subDays(30)->toDateString();
+
+        $dailyRoutes = VehicleDailyRoute::query()
+            ->where('vehicle_id', $vehicle->id)
+            ->where('route_date', '>=', $sinceDate)
+            ->orderByDesc('route_date')
+            ->get(['id', 'route_date', 'point_count', 'distance_km', 'started_at', 'ended_at'])
+            ->map(fn (VehicleDailyRoute $r) => [
+                'id'           => $r->id,
+                'route_date'   => $r->route_date?->toDateString(),
+                'point_count'  => (int) $r->point_count,
+                'distance_km'  => $r->distance_km !== null ? (float) $r->distance_km : null,
+                'started_at'   => $r->started_at?->toIso8601String(),
+                'ended_at'     => $r->ended_at?->toIso8601String(),
+            ]);
+
+        $locationsByDailyRoute = [];
+        foreach ($dailyRoutes as $meta) {
+            $rid = $meta['id'];
+            $locationsByDailyRoute[$rid] = VehicleLocation::query()
+                ->where('vehicle_daily_route_id', $rid)
+                ->orderBy('recorded_at')
+                ->orderBy('id')
+                ->get(['lat', 'lng', 'recorded_at'])
+                ->map(fn (VehicleLocation $l) => [
+                    'lat'         => (float) $l->lat,
+                    'lng'         => (float) $l->lng,
+                    'recorded_at' => $l->recorded_at->toIso8601String(),
+                ])
+                ->values()
+                ->all();
+        }
+
+        $trips = FuelTransaction::query()
+            ->where('vehicle_id', $vehicle->id)
+            ->where('status', 'completed')
+            ->with(['station:id,name,lat,lng', 'driver:id,name', 'fuelType:id,name'])
+            ->orderByDesc('completed_at')
+            ->orderByDesc('id')
+            ->limit(80)
+            ->get()
+            ->map(function (FuelTransaction $t) {
+                $station = $t->station;
+                $when = $t->completed_at ?? $t->created_at;
+
+                return [
+                    'id'            => $t->id,
+                    'reference_no'  => $t->reference_no,
+                    'completed_at'  => $when?->toIso8601String(),
+                    'station_name'  => $station?->name,
+                    'lat'           => $station && $station->lat !== null ? (float) $station->lat : null,
+                    'lng'           => $station && $station->lng !== null ? (float) $station->lng : null,
+                    'total_amount'  => (float) $t->total_amount,
+                    'actual_liters' => (float) $t->actual_liters,
+                    'fuel_type'     => $t->fuelType?->name,
+                    'driver_name'   => $t->driver?->name,
+                ];
+            });
+
+        return $this->responseTemplate([
+            'vehicle_id'                 => $vehicle->id,
+            'plate'                      => $vehicle->formatted_plate_number,
+            'daily_routes'               => $dailyRoutes,
+            'locations_by_daily_route'   => $locationsByDailyRoute,
+            'fuel_visits'                => $trips,
+        ], true, null);
+    }
+
+    private function userCanViewVehicleTracking(): bool
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return false;
+        }
+        if ($user->category === 'admin') {
+            return true;
+        }
+
+        return $user->category === 'technical' && $user->isAbleTo('vehicles_*');
     }
 }

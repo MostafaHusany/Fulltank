@@ -71,6 +71,9 @@ Route::group([
         ]
     ]);
 
+    Route::get('vehicles/tracking/live', [App\Http\Controllers\Admin\VehicleController::class, 'trackingLive'])->name('admin.vehicles.tracking.live');
+    Route::get('vehicles/{vehicle}/tracking/history', [App\Http\Controllers\Admin\VehicleController::class, 'trackingHistory'])->name('admin.vehicles.tracking.history');
+
     Route::resource('vehicles', VehicleController::class, [
         'names' => [
             'index'   => 'admin.vehicles.index',
