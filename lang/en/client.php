@@ -60,6 +60,7 @@ return [
 
     'vehicles' => [
         'title' => 'My Vehicles',
+        'show_title' => 'Vehicle details',
         'create_title' => 'Add New Vehicle',
         'edit_title' => 'Edit Vehicle',
         'plate_number' => 'Plate Number',

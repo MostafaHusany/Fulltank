@@ -270,6 +270,8 @@ Route::group([
 
     Route::get('/vehicles', [App\Http\Controllers\Client\VehicleController::class, 'index'])->name('vehicles.index');
     Route::post('/vehicles', [App\Http\Controllers\Client\VehicleController::class, 'store'])->name('vehicles.store');
+    Route::get('/vehicles/tracking/live', [App\Http\Controllers\Client\VehicleController::class, 'trackingLive'])->name('vehicles.tracking.live');
+    Route::get('/vehicles/{vehicle}/tracking/history', [App\Http\Controllers\Client\VehicleController::class, 'trackingHistory'])->name('vehicles.tracking.history');
     Route::get('/vehicles/{id}', [App\Http\Controllers\Client\VehicleController::class, 'show'])->name('vehicles.show');
     Route::put('/vehicles/{id}', [App\Http\Controllers\Client\VehicleController::class, 'update'])->name('vehicles.update');
     Route::delete('/vehicles/{id}', [App\Http\Controllers\Client\VehicleController::class, 'destroy'])->name('vehicles.destroy');

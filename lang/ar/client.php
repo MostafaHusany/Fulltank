@@ -60,6 +60,7 @@ return [
 
     'vehicles' => [
         'title' => 'مركباتي',
+        'show_title' => 'تفاصيل المركبة',
         'create_title' => 'إضافة مركبة جديدة',
         'edit_title' => 'تعديل المركبة',
         'plate_number' => 'رقم اللوحة',
